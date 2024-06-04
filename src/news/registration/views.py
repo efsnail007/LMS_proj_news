@@ -26,4 +26,5 @@ class RegView(CreateView):
 class AuthView(LoginView):
     authentication_form = LoginForm
     template_name = 'registration/auth.html'
-    redirect_authenticated_user = reverse_lazy('registration:main')
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('registration:main')
