@@ -7,6 +7,8 @@ from django.views import View
 from django.views.generic import CreateView
 from registration.forms import RegistrationForm, LoginForm
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
 
 class MainView(View):
     def get(self, request, *args, **kwargs):
@@ -23,8 +25,15 @@ class RegView(CreateView):
         form.instance.password = make_password(form.cleaned_data['password'])
         return super().form_valid(form)
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('registration:main')
+        return super().dispatch(request, *args, **kwargs)
+
 class AuthView(LoginView):
     authentication_form = LoginForm
     template_name = 'registration/auth.html'
     redirect_authenticated_user = True
-    success_url = reverse_lazy('registration:main')
+
+    def get_success_url(self):
+        return reverse_lazy('registration:main')

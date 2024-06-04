@@ -18,12 +18,14 @@ class RegistrationForm(forms.ModelForm):
         labels = {'username': 'Логин', 'first_name': 'Имя', 'last_name': 'Фамилия', 'email': 'Почта', 'password': 'Пароль'}
         help_texts = {'username': ''}
         required = ('username', 'first_name', 'last_name', 'email', 'password')
-        widgets = {'password': forms.PasswordInput}
+        widgets = {'password': forms.PasswordInput, 'email': forms.EmailInput}
 
     def clean_password2(self):
         cd = self.cleaned_data
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Пароли не совпадают!')
+        if len(str(cd['password2'])) < 6:
+            raise forms.ValidationError('Слишком короткий пароль!')
         return cd['password2']
 
     def clean_email(self):
