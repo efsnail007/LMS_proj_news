@@ -11,6 +11,7 @@ class RegistrationForm(forms.ModelForm):
         for field in self.Meta.required:
             self.fields[field].required = True
 
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'password']
@@ -25,6 +26,11 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Пароли не совпадают!')
         return cd['password2']
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Пользователь с таким адресом электронной почты уже зарегистрирован.")
+        return email
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(max_length=150, label='Логин', widget=forms.TextInput)

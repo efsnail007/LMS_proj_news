@@ -6,15 +6,24 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView
 from registration.forms import RegistrationForm, LoginForm
+from django.contrib.auth.hashers import make_password
+
+class MainView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'registration/main.html')
+
 
 class RegView(CreateView):
     model = User
     form_class = RegistrationForm
-    template_name = 'auth_and_reg/reg.html'
-    success_url = reverse_lazy('auth_and_reg:auth')
+    template_name = 'registration/reg.html'
+    success_url = reverse_lazy('registration:auth')
 
+    def form_valid(self, form):
+        form.instance.password = make_password(form.cleaned_data['password'])
+        return super().form_valid(form)
 
 class AuthView(LoginView):
     authentication_form = LoginForm
-    template_name = 'auth_and_reg/auth.html'
-    redirect_authenticated_user = reverse_lazy('auth_and_reg:start')
+    template_name = 'registration/auth.html'
+    redirect_authenticated_user = reverse_lazy('registration:main')

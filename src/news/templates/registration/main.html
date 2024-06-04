@@ -5,8 +5,8 @@
 {% block content %}
     <h1>Главная страница</h1>
     <p>
-        <a href="{% url 'auth:reg' %}">Регистрация</a> |
-        <a href="{% url 'auth:auth' %}">Авторизация</a>
+        <a href="{% url 'registration:add' %}">Регистрация</a> |
+        <a href="{% url 'registration:auth' %}">Авторизация</a>
     </p>
     {% if request.user.is_authenticated %}
       {{ request.user.username }}
