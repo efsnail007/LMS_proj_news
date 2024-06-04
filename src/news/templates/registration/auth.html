@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+
+{% block header %}
+    <h1>Авторизация</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+    <p>
+        <a href="{% url 'auth:main' %}">На главную</a> |
+        <a href="{% url 'auth:reg' %}">Регистрация</a>
+    </p>
+{% endblock %}
