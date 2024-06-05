@@ -21,4 +21,5 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('auth/', include('registration.urls')),
+    path('reset_password/', include('reset_password.urls')),
 ]
