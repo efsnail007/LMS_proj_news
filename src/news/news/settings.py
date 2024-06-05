@@ -32,9 +32,9 @@ EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
-EMAIL_HOST_USER = 'skeleton1212@yandex.ru'
-EMAIL_HOST_PASSWORD = 'jfdajhyztajfjrne'
-DEFAULT_FROM_EMAIL = 'skeleton1212@yandex.ru'
+EMAIL_HOST_USER = 'newssitemail@yandex.ru'
+EMAIL_HOST_PASSWORD = 'qrpslvzqhrcyqoeq'
+DEFAULT_FROM_EMAIL = 'newssitemail@yandex.ru'
 
 
 # Application definition
