@@ -15,7 +15,7 @@ class RegistrationForm(forms.ModelForm):
         for field in self.Meta.required:
             self.fields[field].required = True
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['class'] = 'form-control form-control-lg border-3 rounded-0 field-style'
 
 
     class Meta:

@@ -1,5 +1,6 @@
 .button-bg {
     background: #F6D3FF;
+    border-radius: 50px;
 }
 
 .button-bg:hover {

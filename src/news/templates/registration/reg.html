@@ -8,26 +8,30 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Регистрация</h1>
-    <form method="post">
+    <h1 class="text-center">Регистрация</h1>
+    <form method="post" class="px-3">
         {% csrf_token %}
         {% if form.errors %}
+            <ul class="list-group mx-auto col-md-7 col-lg-5 mb-3">
             {% for field in form %}
                {% for error in field.errors %}
-                   <p>{{ error }}</p>
+                   <li class="list-group-item list-group-item-danger">{{ error }}</li>
                {% endfor %}
            {% endfor %}
+            </ul>
         {% endif %}
         {% for field in form %}
-            <div class="form-group col-md-2">
-                <label class="mr-sm-2" for="{{ field.auto_id }}">{{ field.label }}</label>
+            <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3">
+                <label class="mr-sm-2 text-color" for="{{ field.auto_id }}">{{ field.label }}</label>
                 {{ field }}
             </div>
         {% endfor %}
-        <button type="submit">Зарегистрироваться</button>
+        <div class="container col-10 col-sm-6 col-md-4 col-xl-3 mx-auto my-4 d-flex justify-content-between align-items-center g-0">
+            <button type="submit" class="btn mx-auto px-4 btn-lg button-bg"><b>Зарегистрироваться</b></button>
+        </div>
     </form>
-    <p>
-        <a href="{% url 'registration:main' %}">На главную</a> |
-        <a href="{% url 'registration:auth' %}">Авторизация</a>
-    </p>
+    <div class="container col-9 col-sm-6 col-md-4 col-xl-3 mx-auto my-4 d-flex justify-content-between align-items-center g-0">
+        <a href="{% url 'registration:main' %}" class="text-color">На главную</a>
+        <a href="{% url 'registration:auth' %}" class="text-color">Авторизация</a>
+    </div>
 {% endblock %}
