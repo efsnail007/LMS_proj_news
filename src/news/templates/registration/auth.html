@@ -2,16 +2,37 @@
 
 {% block title %} Авторизация {% endblock %}
 
+{% block styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/addition_to_bootstrap.css' %}">
+{% endblock %}
+
+{% block title %} Авторизация {% endblock %}
+
 {% block content %}
-    <h1>Авторизация</h1>
-    <form method="post">
+    <h1 class="text-center">Авторизация</h1>
+    <form method="post" class="px-3">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Войти</button>
+        {% if form.errors %}
+            {% for field in form %}
+               {% for error in field.errors %}
+                   <p>{{ error }}</p>
+               {% endfor %}
+           {% endfor %}
+        {% endif %}
+        {% for field in form %}
+            <div class="form-group col-md-2 mx-auto mb-3">
+                <label class="mr-sm-2" for="{{ field.id_for_label }}"><b>{{ field.label }}</b></label>
+                {{ field }}
+            </div>
+        {% endfor %}
+        <div class="col-md-2 mx-auto my-4 d-flex justify-content-between align-items-center">
+            <button type="submit" class="btn px-4 btn-lg rounded bg-color"><b>Войти</b></button>
+            <a href="{% url 'reset_password:reset_password' %}" class="text-color">Забыли пароль?</a>
+        </div>
     </form>
-    <p>
-        <a href="{% url 'registration:main' %}">На главную</a> |
-        <a href="{% url 'registration:add' %}">Регистрация</a> |
-        <a href="{% url 'reset_password:reset_password' %}">Забыли пароль?</a>
-    </p>
+    <div class="col-md-2 mx-auto d-flex justify-content-between px-3">
+        <a href="{% url 'registration:main' %}" class="text-color"><b>На главную</b></a>
+        <a href="{% url 'registration:add' %}" class="text-color"><b>Регистрация</b></a>
+    </div>
 {% endblock %}

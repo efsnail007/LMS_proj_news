@@ -2,11 +2,28 @@
 
 {% block title %} Регистрация {% endblock %}
 
+{% block styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/addition_to_bootstrap.css' %}">
+{% endblock %}
+
 {% block content %}
     <h1>Регистрация</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if form.errors %}
+            {% for field in form %}
+               {% for error in field.errors %}
+                   <p>{{ error }}</p>
+               {% endfor %}
+           {% endfor %}
+        {% endif %}
+        {% for field in form %}
+            <div class="form-group col-md-2">
+                <label class="mr-sm-2" for="{{ field.auto_id }}">{{ field.label }}</label>
+                {{ field }}
+            </div>
+        {% endfor %}
         <button type="submit">Зарегистрироваться</button>
     </form>
     <p>

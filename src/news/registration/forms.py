@@ -14,6 +14,8 @@ class RegistrationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.Meta.required:
             self.fields[field].required = True
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
 
 
     class Meta:
@@ -54,3 +56,8 @@ class LoginForm(AuthenticationForm):
 
     class Meta:
         fields = ['username', 'password']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control border-3 rounded-0 field-style'
