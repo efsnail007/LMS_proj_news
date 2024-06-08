@@ -60,4 +60,4 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'form-control border-3 rounded-0 field-style'
+            visible.field.widget.attrs['class'] = 'form-control form-control-lg border-3 rounded-0 field-style'

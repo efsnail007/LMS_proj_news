@@ -1,5 +1,10 @@
-.bg-color {
+.button-bg {
     background: #F6D3FF;
+}
+
+.button-bg:hover {
+    background-color: #C51FEF;
+    color: white;
 }
 
 .text-color {
@@ -7,6 +12,12 @@
 }
 
 .field-style {
+    border-color: #C51FEF;
+    background-color: #FFF3FF;
+}
+
+.form-control:focus {
+    box-shadow: none;
     border-color: #C51FEF;
     background-color: #FFF3FF;
 }
