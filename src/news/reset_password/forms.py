@@ -15,6 +15,11 @@ class UserSetPasswordForm(SetPasswordForm):
         widget=forms.PasswordInput,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control form-control-lg border-3 rounded-0 field-style'
+
 class UserPasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
