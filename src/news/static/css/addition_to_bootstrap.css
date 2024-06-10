@@ -3,6 +3,11 @@
     border-radius: 50px;
 }
 
+.p-style {
+    background-color: #C51FEF;
+    color: white;
+}
+
 .button-bg:hover {
     background-color: #C51FEF;
     color: white;
