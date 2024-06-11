@@ -2,13 +2,13 @@ from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+import re
 
 
 class RegistrationForm(forms.ModelForm):
     password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
-    error_messages = {
-        'password_mismatch': 'Пароли не равны',
-        'password_notvalid': "Пароль должен состоять из 8 символов и содержать как минимум 1 специальный символ и 1 заглавную букву.",
+    er_mes = {
+        'password_mismatch': 'Введённые пароли не равны',
     }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,19 +27,13 @@ class RegistrationForm(forms.ModelForm):
         widgets = {'password': forms.PasswordInput, 'email': forms.EmailInput}
 
     def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
+        password1 = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
         if password1 and password2:
             if password1 != password2:
                 raise forms.ValidationError(
-                    self.error_messages['password_mismatch'],
+                    self.er_mes['password_mismatch'],
                     code='password_mismatch',
-                )
-            regex = re.compile('((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,30})')
-            if regex.search(password1) == None:
-                    raise forms.ValidationError(
-                    self.error_messages['password_notvalid'],
-                    code='password_notvalid',
                 )
         password_validation.validate_password(str(password2))
         return password2
