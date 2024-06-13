@@ -9,7 +9,8 @@
             <a href="{% url 'user_page:user-page-edit' request.user.username %}">Редактировать</a>
         {% endif %}
     </p>
-    <p>{{ request.user.username }}</p>
+    <p>{{ record.user.username }}</p>
+    <p>{{ record.user.first_name }} {{ record.user.last_name }}</p>
     {% if record.photo %}
         <img src="{{ record.photo.url }}">
     {% endif %}

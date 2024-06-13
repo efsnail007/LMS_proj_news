@@ -9,7 +9,23 @@
     </p>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if field.errors %}
+                {% for error in field.errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endif %}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
+            {% if field.field.widget.input_type == 'file' %}
+                {% if field.value %}
+                    <a href="{{ field.value.url }}">{{ field.value.name }}</a>
+                    <br>
+                {% endif %}
+                {{ field }}<br>
+            {% else %}
+                {{ field }}<br>
+            {% endif %}
+        {% endfor %}
         <button type="submit">Редактировать</button>
     </form>
 {% endblock %}
