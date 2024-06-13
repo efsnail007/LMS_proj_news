@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Страница пользователя {% endblock %}
+
+{% block content %}
+    <h1>Страница пользователя {{ record.user.username }}</h1>
+    <p>
+        {% if record.user.username == request.user.username %}
+            <a href="{% url 'user_page:user-page-edit' request.user.username %}">Редактировать</a>
+        {% endif %}
+    </p>
+    <p>{{ request.user.username }}</p>
+    <img src="{{ record.photo.url }}">
+    <p>{{ record.date_of_birth }}</p>
+{% endblock %}

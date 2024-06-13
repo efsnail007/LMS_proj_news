@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Страница пользователя {% endblock %}
+
+{% block content %}
+    <h1>Редактирование дополнительной информации</h1>
+    <p>
+        <a href="{% url 'user_page:user-page' request.user.username %}">Назад</a>
+    </p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Редактировать</button>
+    </form>
+{% endblock %}
