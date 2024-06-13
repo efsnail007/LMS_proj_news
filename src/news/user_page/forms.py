@@ -5,5 +5,5 @@ class UserPageEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['date_of_birth', 'photo']
-        labels = {'date_of_birth': 'Дата рождения', 'photo': 'Фото'}
+        labels = {'date_of_birth': 'Дата рождения', 'photo': 'Изображение'}
         widgets = {'date_of_birth': forms.DateInput(format='%d.%m.%Y', )}

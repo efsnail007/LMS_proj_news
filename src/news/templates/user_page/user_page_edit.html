@@ -15,13 +15,17 @@
                 {% endfor %}
             {% endif %}
         {% for field in form %}
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
+            <label for="{{ field.id_for_label }}">{{ field.label }}:</label><br>
             {% if field.field.widget.input_type == 'file' %}
                 {% if field.value %}
-                    <a href="{{ field.value.url }}">{{ field.value.name }}</a>
+                    <img src="{{ object.photo.url }}">
+                    <br>
+                    <label for="photo-clear_id">Очистить изображение</label>
+                    <input type="checkbox" name="photo-clear" id="photo-clear_id">
                     <br>
                 {% endif %}
-                {{ field }}<br>
+                <input type="file" name="photo" accept="image/*" id="id_photo">
+                <br>
             {% else %}
                 {{ field }}<br>
             {% endif %}
