@@ -9,6 +9,8 @@ from registration.forms import RegistrationForm, LoginForm
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
+from user_page.models import Profile
 
 class MainView(View):
     def get(self, request, *args, **kwargs):
@@ -23,6 +25,7 @@ class RegView(CreateView):
 
     def form_valid(self, form):
         form.instance.password = make_password(form.cleaned_data['password'])
+        Profile.objects.create(user=form.save())
         return super().form_valid(form)
 
     def dispatch(self, request, *args, **kwargs):

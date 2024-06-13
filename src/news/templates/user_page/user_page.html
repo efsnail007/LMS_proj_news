@@ -10,6 +10,10 @@
         {% endif %}
     </p>
     <p>{{ request.user.username }}</p>
-    <img src="{{ record.photo.url }}">
-    <p>{{ record.date_of_birth }}</p>
+    {% if record.photo %}
+        <img src="{{ record.photo.url }}">
+    {% endif %}
+    {% if record.date_of_birth %}
+        <p>{{ record.date_of_birth }}</p>
+    {% endif %}
 {% endblock %}
