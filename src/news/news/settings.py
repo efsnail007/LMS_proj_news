@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "registration.apps.RegistrationConfig",
     "reset_password.apps.ResetPasswordConfig",
+    "user_page.apps.UserPageConfig",
 ]
 
 MIDDLEWARE = [
