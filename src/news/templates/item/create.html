@@ -1,0 +1,19 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Создание новости {% endblock %}
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if field.errors %}
+                {% for error in field.errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endif %}
+        {% for field in form %}
+            <label for="{{ field.auto_id }}">{{ field.label }}</label><br>
+            {{ field }}<br>
+        {% endfor %}
+        <button type="submit">Создать</button>
+    </form>
+{% endblock %}
