@@ -15,3 +15,7 @@ class Item(models.Model):
 class Tags(models.Model):
     name = models.CharField(max_length=100)
 
+
+class Addition(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='news/%Y/%m/%d/')
