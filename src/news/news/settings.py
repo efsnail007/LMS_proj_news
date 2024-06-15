@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "registration.apps.RegistrationConfig",
     "reset_password.apps.ResetPasswordConfig",
     "user_page.apps.UserPageConfig",
+    'item.apps.ItemConfig',
 ]
 
 MIDDLEWARE = [
