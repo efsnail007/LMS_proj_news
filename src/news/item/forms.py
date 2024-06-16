@@ -25,11 +25,4 @@ class NewsCreationForm(forms.ModelForm):
         fields = ['text', 'tags']
         labels = {'text': 'Текст'}
     tags = forms.ModelMultipleChoiceField(queryset=Tags.objects.all(), widget=forms.CheckboxSelectMultiple, label='Теги', to_field_name='name')
-    files = MultipleFileField(label='Файлы')
-
-
-# class AdditionCreationForm(forms.ModelForm):
-#     file = MultipleFileField(label='Файл')
-#     class Meta:
-#         model = Addition
-#         fields = ['file']
+    files = MultipleFileField(label='Файлы', required=False)

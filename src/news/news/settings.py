@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_cleanup",
     "registration.apps.RegistrationConfig",
     "reset_password.apps.ResetPasswordConfig",
     "user_page.apps.UserPageConfig",

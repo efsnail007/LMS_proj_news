@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import CreateView
 from .models import Tags, Item, Addition
 from .forms import NewsCreationForm
@@ -12,12 +12,7 @@ class NewsCreationView(CreateView):
     model = Item
     form_class = NewsCreationForm
     template_name = 'item/create.html'
-    success_url = reverse_lazy('registration:main')
-
-    # def get_context_data(self, *kwargs):
-    #     context = super().get_context_data(*kwargs)
-    #     context['addition_form'] = AdditionCreationForm()
-    #     return context
+    success_url = reverse_lazy('registration:main')  # переделать на путь самой записи
 
     def form_valid(self, form):
         files = form.cleaned_data["files"]
@@ -25,3 +20,8 @@ class NewsCreationView(CreateView):
         for file in files:
             Addition.objects.create(item=form.save(), file=file)
         return super().form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('registration:auth')
+        return super().dispatch(request, *args, **kwargs)
