@@ -5,7 +5,7 @@ from item.models import Tags
 class UserPageEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['date_of_birth', 'photo']
+        fields = ['date_of_birth', 'photo', 'tags']
         labels = {'date_of_birth': 'Дата рождения', 'photo': 'Изображение'}
         widgets = {'date_of_birth': forms.DateInput(format='%d.%m.%Y', )}
 
