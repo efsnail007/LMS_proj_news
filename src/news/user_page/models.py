@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from .item.models import Tags
+from item.models import Tags
 
 
 class Profile(models.Model):
