@@ -27,7 +27,7 @@
                 {% if field.value %}
                     <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3">
                         <label class="mr-sm-2 text-color"><b>Текущее изображение</b></label>
-                        <img src="{{ object.photo.url }}" class="photo-border-color img-thumbnail img-fluid rounded mx-auto d-block">
+                        <img src="{{ object.photo.url }}" class="photo-border img-thumbnail img-fluid rounded mx-auto d-block">
                         <label for="photo-clear_id" class="mr-sm-2 text-color">Без изображения</label>
                         <input type="checkbox" name="photo-clear" id="photo-clear_id">
                     </div>
@@ -52,5 +52,10 @@
             <button type="submit" class="btn mx-auto px-4 btn-lg button-bg"><b>Редактировать</b></button>
         </div>
     </form>
+    <div id="image-block-id" class="hidden-elem">
+        <div class="d-flex mx-auto px-2">
+            <img src="" id="image-block-photo-id" class="img-fluid mx-auto">
+        </div>
+    </div>
     <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
 {% endblock %}
