@@ -3,6 +3,15 @@
     border-radius: 50px;
 }
 
+.hidden-elem {
+    display: none;
+    visibility: hidden;
+}
+
+input[type="checkbox"]{
+    accent-color: #C51FEF;
+}
+
 .p-style {
     background-color: #C51FEF;
     color: white;
@@ -26,4 +35,54 @@
     box-shadow: none;
     border-color: #C51FEF;
     background-color: #FFF3FF;
+}
+
+.photo-border-color {
+    background-color: #C51FEF;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 1/1;
+}
+
+.photo-border-color:hover {
+    opacity: 0.5;
+}
+
+.disabled-span {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#id_tags {
+    padding: 2%;
+    border: 3px solid #C51FEF;
+    border-radius: 10px;
+}
+
+#id_tags div:nth-child(1) {
+    margin-top: 2%;
+}
+
+#id_tags div {
+    margin-top: 1%;
+    background-color: #FFF3FF;
+}
+
+#id_tags label {
+    width: 100%;
+    padding: 1%;
+}
+
+#id_tags div:hover {
+    background-color: #C51FEF;
+    color: white;
+}
+
+label[for="id_tags"] {
+    margin-left: 10px;
+    top: 0;
+    transform: translateY(50%);
+    background-color: white;
+    padding: 2px;
 }

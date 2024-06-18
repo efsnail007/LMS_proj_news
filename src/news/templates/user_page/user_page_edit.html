@@ -1,35 +1,56 @@
 {% extends 'base/base.html' %}
 
+{% load static %}
+
 {% block title %} Страница пользователя {% endblock %}
 
 {% block content %}
-    <h1>Редактирование дополнительной информации</h1>
-    <p>
-        <a href="{% url 'user_page:user-page' request.user.username %}">Назад</a>
+    <h1 class="text-center">Редактирование дополнительной информации</h1>
+    <p class="px-3 text-center">
+        <a href="{% url 'user_page:user-page' request.user.username %}" class="text-color">Назад</a>
     </p>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" class="px-3">
         {% csrf_token %}
-        {% if field.errors %}
-                {% for error in field.errors %}
-                    {{ error }}
-                {% endfor %}
-            {% endif %}
+        {% if form.errors %}
+            <ul class="list-group mx-auto col-md-7 col-lg-5 mb-3">
+            {% for field in form %}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <li class="list-group-item list-group-item-danger">{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% endif %}
         {% for field in form %}
-            <label for="{{ field.id_for_label }}">{{ field.label }}:</label><br>
             {% if field.field.widget.input_type == 'file' %}
                 {% if field.value %}
-                    <img src="{{ object.photo.url }}">
-                    <br>
-                    <label for="photo-clear_id">Очистить изображение</label>
-                    <input type="checkbox" name="photo-clear" id="photo-clear_id">
-                    <br>
+                    <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3">
+                        <label class="mr-sm-2 text-color"><b>Текущее изображение</b></label>
+                        <img src="{{ object.photo.url }}" class="photo-border-color img-thumbnail img-fluid rounded mx-auto d-block">
+                        <label for="photo-clear_id" class="mr-sm-2 text-color">Без изображения</label>
+                        <input type="checkbox" name="photo-clear" id="photo-clear_id">
+                    </div>
                 {% endif %}
-                <input type="file" name="photo" accept="image/*" id="id_photo">
-                <br>
+                <div class="container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0">
+                    <div class="row align-items-center">
+                        <label class="text-color" for="id_photo"><b>Загружаемое изображение</b>
+                            <input type="file" name="photo" accept="image/*" id="id_photo" class="hidden-elem">
+                            <span id="id_photo_" class="text-center button-bg form-control border-3 rounded-0 field-style">Выберите файл</span>
+                        </label>
+                    </div>
+                    <img src="" id="load-photo" class="mt-2 hidden-elem img-thumbnail img-fluid rounded d-block">
+                </div>
             {% else %}
-                {{ field }}<br>
+                <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3 g-0">
+                    <label class="mr-sm-2 text-color" for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+                    {{ field }}
+                </div>
             {% endif %}
         {% endfor %}
-        <button type="submit">Редактировать</button>
+        <div class="container col-10 col-sm-6 col-md-4 col-xl-3 mx-auto my-4 d-flex justify-content-between align-items-center g-0">
+            <button type="submit" class="btn mx-auto px-4 btn-lg button-bg"><b>Редактировать</b></button>
+        </div>
     </form>
+    <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
 {% endblock %}
