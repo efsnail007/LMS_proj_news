@@ -37,7 +37,7 @@ input[type="checkbox"]{
     background-color: #FFF3FF;
 }
 
-.photo-border {
+.photo-border, .video-border {
     width: 100%;
     height: auto;
     object-fit: cover;
@@ -97,4 +97,8 @@ label[for="id_tags"] {
 .image-block img {
     object-fit: contain;
     max-height: 90%;
+}
+
+textarea {
+    resize: none;
 }
