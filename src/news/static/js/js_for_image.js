@@ -40,6 +40,7 @@ window.onload = function() {
         image_block.style.top = window.pageYOffset + "px";
         image_block.classList.add("image-block");
         image_block.classList.remove("hidden-elem");
+        image_block_photo.classList.remove("hidden-elem");
         image_block_photo.src = image.src;
         document.body.style.overflow = "hidden";
     }
@@ -47,6 +48,7 @@ window.onload = function() {
     image_block.addEventListener("click", function(e) {
         if (e.target.id != 'image-block-photo-id') {
             image_block.classList.add("hidden-elem");
+            image_block_photo.classList.add("hidden-elem");
             image_block.classList.remove("image-block");
             document.body.style.overflow = "auto";
         }
