@@ -17,9 +17,11 @@
     {% if record.date_of_birth %}
         <p>{{ record.date_of_birth }}</p>
     {% endif %}
-    <ul>Любимые теги:
-    {% for tag in record.tags.all %}
-        <li>{{ tag.name }}</li>
-    {% endfor %}
-    </ul>
+    {% if record.tags.all %}
+        <ul>Любимые теги:
+        {% for tag in record.tags.all %}
+            <li>{{ tag.name }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}
