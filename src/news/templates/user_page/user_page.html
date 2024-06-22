@@ -2,20 +2,34 @@
 
 {% block title %} Страница пользователя {% endblock %}
 
+{% block styles %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% endblock %}
+
 {% block content %}
     <h1>Страница пользователя {{ record.user.username }}</h1>
-    <p>
-        {% if record.user.username == request.user.username %}
-            <a href="{% url 'user_page:user-page-edit' request.user.username %}">Редактировать</a>
-        {% endif %}
-    </p>
+    {% if record.user.username == request.user.username %}
+        <a href="{% url 'user_page:user-page-edit' request.user.username %}">Редактировать</a>
+    {% else %}
+        <form id="subscribe-form" method="post">
+            {% csrf_token %}
+            <button type="submit" id="subscribe-button" name="subscribe-button-name">
+                {% if is_subscribed %}
+                    Вы подписаны
+                {% else %}
+                    Подписаться
+                {% endif %}
+            </button>
+        </form>
+        <div class="bg-danger" id="message"></div>
+    {% endif %}
     <p>{{ record.user.username }}</p>
     <p>{{ record.user.first_name }} {{ record.user.last_name }}</p>
     {% if record.photo %}
         <img src="{{ record.photo.url }}">
     {% endif %}
     {% if record.date_of_birth %}
-        <p>{{ record.date_of_birth }}</p>
+        <p>Дата рождения: {{ record.date_of_birth }}</p>
     {% endif %}
     {% if record.tags.all %}
         <ul>Любимые теги:
@@ -24,4 +38,26 @@
         {% endfor %}
         </ul>
     {% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+          $('#subscribe-form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+              type: "POST",
+              url: "{% url 'user_page:user-page' username=record.user.username %}",
+              data: $(this).serialize() + '&form_name=subscribe-form',
+              headers: {
+                        'X-CSRFToken': "{{ csrf_token }}",
+                    },
+              success: function(response) {
+                $('#subscribe-button').html(response.text);
+              },
+              error: function() {
+                $('#message').html('Произошла ошибка. Попробуйте позже.');
+              },
+            });
+          });
+        });
+    </script>
 {% endblock %}
