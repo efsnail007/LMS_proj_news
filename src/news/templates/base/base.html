@@ -12,6 +12,22 @@
     {% endblock %}
 </head>
 <body>
+    <header>
+        {% if request.user.is_authenticated %}
+            <ul>
+                <li><a href="">News&Views</a></li> <!-- сслыка должна вести на страницу с лентой новостей -->
+                <li><a href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
+                <li><a href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
+                <li><a href="">Подписки</a></li> <!-- ссылка должна вести на страницу с подписками -->
+                <li><a href="{% url 'registration:logout' %}">Выход</a></li>
+            </ul>
+        {% else %}
+              <ul>
+                    <li><a href="">News&Views</a></li> <!-- сслыка должна вести на страницу с лентой новостей -->
+                    <li><a href="{% url 'registration:auth' %}">Войти</a></li>
+                </ul>
+        {% endif %}
+    </header>
     <main>
         {% block content %}
         <!-- Основное содержимое страницы -->
