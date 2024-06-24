@@ -3,5 +3,33 @@
 {% block title %} Авторизация {% endblock %}
 
 {% block content %}
-    <p>Привет</p>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'item:item-add' %}">Создать новость</a>
+    {% else %}
+        {% for item, profile, addition in items_for_unauthenticated %}
+            <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}">
+            {% endif %}
+            <p>{{ item.text }}</p>
+            <div>
+
+                {% for file, type in addition.items %}
+                    {% if type == "image" %}
+                        <img src="{{ file }}">
+                    {% else %}
+                        <video src="{{ file }}" controls></video>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Добавить ссылки на теги, которые ведут на ленту новостей, отфильтрованную по данному тегу -->
+            <ul>
+                {% for tag in item.tags.all %}
+                    <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

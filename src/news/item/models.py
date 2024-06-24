@@ -21,3 +21,6 @@ class Item(models.Model):
 class Addition(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     file = models.FileField(upload_to='news/%Y/%m/%d/')
+
+    def __str__(self):
+        return self.file.url
