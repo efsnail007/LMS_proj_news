@@ -17,8 +17,10 @@ class UserPageView(View):
         record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
         all_records = list(record_subscription.subscription_profiles.all())
         if len(all_records) > 0:
-            return [True if str(item) == self.kwargs['username'] else False for item in
-                         all_records][0]
+            for item in all_records:
+                if str(item) == self.kwargs['username']:
+                    return True
+            return False
         return False
 
     def get(self, request, *args, **kwargs):
@@ -26,18 +28,17 @@ class UserPageView(View):
         return render(request, self.template_name, {'record': record, 'is_subscribed': self.__get_is_subscribed(request)})
 
     def post(self, request, *args, **kwargs):
-        # if 'subscribe-button-name' in request.POST:
-        #if request.POST.get('subscribe', None) == 'subscribe':
         form_name = request.POST.get('form_name')
-
         if form_name == 'subscribe-form':
             record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
+            flag = self.__get_is_subscribed(request)
             user_id = User.objects.get(username=self.kwargs['username']).id
-            if not self.__get_is_subscribed(request):
-                record_subscription.subscription_profiles.add(Profile.objects.get(user_id=user_id))
+            profile_item = Profile.objects.get(user_id=user_id)
+            if not flag:
+                record_subscription.subscription_profiles.add(profile_item)
                 return JsonResponse({'success': True, 'text': 'Вы подписаны'})
             else:
-                record_subscription.subscription_profiles.remove(Profile.objects.get(user_id=user_id))
+                record_subscription.subscription_profiles.remove(profile_item)
                 return JsonResponse({'success': True, 'text': 'Подписаться'})
         return redirect('user_page:user-page', username=self.kwargs['username'])
 
