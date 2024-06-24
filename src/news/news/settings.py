@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "registration.apps.RegistrationConfig",
     "reset_password.apps.ResetPasswordConfig",
     "user_page.apps.UserPageConfig",
+    'messages.apps.MessagesConfig',
     'item.apps.ItemConfig',
 ]
 
