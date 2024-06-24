@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "reset_password.apps.ResetPasswordConfig",
     "user_page.apps.UserPageConfig",
     'item.apps.ItemConfig',
+    'news_feed.apps.NewsFeedConfig',
 ]
 
 MIDDLEWARE = [
