@@ -31,7 +31,7 @@ class NewsFeedView(View):
                 'text': item.text,
                 'tags': [str(tag) for tag in item.tags.all()],
                 'created_at': datetime.strftime(item.created_at, "%d %B %Y %H:%M"),
-            }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo),
+            }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(user_id=item.author.id).photo else None,
             'addition': self.__get_addition(item)}
                                          for item in items[page*self.__num_of_items:(page+1) * self.__num_of_items]]
             return JsonResponse({'items_for_unauthenticated': items_for_unauthenticated})
