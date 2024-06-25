@@ -39,60 +39,62 @@
         $(document).ready(function() {
         var page = 1;
             document.addEventListener('scroll', function() {
-                if ($(document).height() - $( window ).height() - 100 <= $( window ).scrollTop()) {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     $.ajax({
                         url: "{% url 'news_feed:news-feed' %}",
                         data: {'page': page},
                         dataType: "json",
                         type: 'GET',
                         success: function(data) {
-                            var all_data = data.items_for_unauthenticated;
-                            var feed = document.getElementById("feed");
-                            for (let i = 0; i < all_data.length; i++) {
-                                let created_at = document.createElement('p');
-                                created_at.textContent = all_data[i]["item"]["created_at"];
-                                feed.appendChild(created_at);
-                                let author_p = document.createElement('p');
-                                author_p.textContent = "Автор: ";
-                                let user_a = document.createElement('a');
-                                user_a.textContent = all_data[i]["item"]["username"]
-                                user_a.href = '/user_page/' + all_data[i]['item']['username'];
-                                author_p.appendChild(user_a);
-                                feed.appendChild(author_p);
-                                if (all_data[i]["profile"]) {
-                                    let image = document.createElement('img');
-                                    image.src = all_data[i]["profile"];
-                                    feed.appendChild(image);
-                                }
-                                let item_text = document.createElement('p');
-                                item_text.textContent = all_data[i]['item']['text'];
-                                feed.appendChild(item_text);
-                                let div_for_files = document.createElement('div');
-                                for (const [file, type] of Object.entries(all_data[i]['addition'])) {
-                                    if (type == "image") {
-                                        let img_item = document.createElement('img');
-                                        img_item.src = file;
-                                        feed.appendChild(img_item);
-                                    } else {
-                                        let video_item = document.createElement('video');
-                                        video_item.src = file;
-                                        video_item.controls = true;
-                                        feed.appendChild(video_item);
+                            if (page == data.page) {
+                                var all_data = data.items_for_unauthenticated;
+                                var feed = document.getElementById("feed");
+                                for (let i = 0; i < all_data.length; i++) {
+                                    let created_at = document.createElement('p');
+                                    created_at.textContent = all_data[i]["item"]["created_at"];
+                                    feed.appendChild(created_at);
+                                    let author_p = document.createElement('p');
+                                    author_p.textContent = "Автор: ";
+                                    let user_a = document.createElement('a');
+                                    user_a.textContent = all_data[i]["item"]["username"]
+                                    user_a.href = '/user_page/' + all_data[i]['item']['username'];
+                                    author_p.appendChild(user_a);
+                                    feed.appendChild(author_p);
+                                    if (all_data[i]["profile"]) {
+                                        let image = document.createElement('img');
+                                        image.src = all_data[i]["profile"];
+                                        feed.appendChild(image);
                                     }
+                                    let item_text = document.createElement('p');
+                                    item_text.textContent = all_data[i]['item']['text'];
+                                    feed.appendChild(item_text);
+                                    let div_for_files = document.createElement('div');
+                                    for (const [file, type] of Object.entries(all_data[i]['addition'])) {
+                                        if (type == "image") {
+                                            let img_item = document.createElement('img');
+                                            img_item.src = file;
+                                            feed.appendChild(img_item);
+                                        } else {
+                                            let video_item = document.createElement('video');
+                                            video_item.src = file;
+                                            video_item.controls = true;
+                                            feed.appendChild(video_item);
+                                        }
+                                    }
+                                    feed.appendChild(div_for_files);
+                                    let ul_tags = document.createElement('ul');
+                                    let tags = all_data[i]['item']['tags'];
+                                    for (let i = 0; i < tags.length; i++) {
+                                        let li_tag = document.createElement('li');
+                                        li_tag.textContent = tags[i];
+                                        ul_tags.appendChild(li_tag);
+                                    }
+                                    feed.appendChild(ul_tags);
+                                    let hr = document.createElement('hr');
+                                    feed.appendChild(hr);
                                 }
-                                feed.appendChild(div_for_files);
-                                let ul_tags = document.createElement('ul');
-                                let tags = all_data[i]['item']['tags'];
-                                for (let i = 0; i < tags.length; i++) {
-                                    let li_tag = document.createElement('li');
-                                    li_tag.textContent = tags[i];
-                                    ul_tags.appendChild(li_tag);
-                                }
-                                feed.appendChild(ul_tags);
-                                let hr = document.createElement('hr');
-                                feed.appendChild(hr);
+                                page++;
                             }
-                            page++;
                         }
                     });
                 }

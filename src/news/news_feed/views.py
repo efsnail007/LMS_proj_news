@@ -34,7 +34,7 @@ class NewsFeedView(View):
             }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(user_id=item.author.id).photo else None,
             'addition': self.__get_addition(item)}
                                          for item in items[page*self.__num_of_items:(page+1) * self.__num_of_items]]
-            return JsonResponse({'items_for_unauthenticated': items_for_unauthenticated})
+            return JsonResponse({'items_for_unauthenticated': items_for_unauthenticated, 'page': page})
         items_for_unauthenticated = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
                                      item in items[:self.__num_of_items]]
         return render(request, self.template_name, {'items_for_unauthenticated': items_for_unauthenticated})
