@@ -13,6 +13,7 @@
         <a href="{% url 'item:item-add' %}">Создать новость</a>
     {% else %}
         <div id="feed">
+            <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items_for_unauthenticated %}
             <p>{{ item.created_at }}</p>
             <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
@@ -29,8 +30,6 @@
                     {% endif %}
                 {% endfor %}
             </div>
-
-            <!-- Добавить ссылки на теги, которые ведут на ленту новостей, отфильтрованную по данному тегу -->
             <ul>
                 {% for tag in item.tags.all %}
                     <li>{{ tag }}</li>
@@ -94,49 +93,55 @@
             var page = 1;
             var filter;
             {% if filter_session %}
-                filter = "{{ filter_session }}";
+                filter = [];
+                {% for element in filter_session %}
+                    filter.push("{{ element }}");
+                {% endfor %}
             {% else %}
-                filter = "";
+                filter = [];
             {% endif %}
+
+            function ajaxOfItems(is_replace) {
+                $.ajax({
+                    url: "{% url 'news_feed:news-feed' %}",
+                    data: {'page': page, 'action': 'feed', 'filter': filter.join(' ')},
+                    dataType: "json",
+                    type: 'GET',
+                    success: function(data) {
+                        if (page == data.page) {
+                            var all_data = data.all_data;
+                            if (is_replace) {
+                                var feed = document.getElementById("feed");
+                                feed.replaceChildren();
+                            }
+                            setItemsIntoHtml(all_data);
+                            page++;
+                        }
+                    }
+                });
+            }
+
             document.addEventListener('scroll', function() {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                    $.ajax({
-                        url: "{% url 'news_feed:news-feed' %}",
-                        data: {'page': page, 'action': 'feed', 'filter': filter},
-                        dataType: "json",
-                        type: 'GET',
-                        success: function(data) {
-                            if (page == data.page) {
-                                var all_data = data.all_data;
-                                setItemsIntoHtml(all_data);
-                                page++;
-                            }
-                        }
-                    });
+                    ajaxOfItems(false);
                 }
             });
             let tag_buttons = document.querySelectorAll('.tag-button');
             for (let i = 0; i < tag_buttons.length; i++) {
                 tag_buttons[i].addEventListener("click", function() {
-                    filter = tag_buttons[i].textContent;
+                    if (filter.indexOf(tag_buttons[i].textContent) == -1) {
+                        filter.push(tag_buttons[i].textContent);
+                    } else {
+                        filter.splice(filter.indexOf(tag_buttons[i].textContent), 1);
+                    }
                     page = 0;
-                    $.ajax({
-                        url: "{% url 'news_feed:news-feed' %}",
-                        data: {'page': page, 'action': 'filter-start', 'filter': filter},
-                        dataType: "json",
-                        type: 'GET',
-                        success: function(data) {
-                            var all_data = data.all_data;
-                            var feed = document.getElementById("feed");
-                            feed.replaceChildren();
-                            setItemsIntoHtml(all_data);
-                            page++;
-                        }
-                    });
+                    ajaxOfItems(true);
                 });
             }
             document.getElementById('set-null').addEventListener("click",  function() {
-                filter = "";
+                filter = [];
+                page = 0;
+                ajaxOfItems(true);
             })
         });
     </script>
