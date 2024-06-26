@@ -62,9 +62,13 @@ class NewsFeedView(View):
             items, _ = self.__set_items(request, tags)
             locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
             if action == 'feed':
-                items_for_unauthenticated = self.__get_items(items, page)
-                return JsonResponse({'all_data': items_for_unauthenticated, 'page': page})
+                items_for_answer = self.__get_items(items, page)
+                return JsonResponse({'all_data': items_for_answer, 'page': page})
         items, context_filter_session = self.__set_items(request, tags)
-        items_for_unauthenticated = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
+        items_for_answer = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
                                      item in items[:self.__num_of_items]]
-        return render(request, self.template_name, {'items_for_unauthenticated': items_for_unauthenticated, 'tags': tags, 'filter_session': context_filter_session})
+        if not request.user.is_authenticated:
+            return render(request, self.template_name, {'items': items_for_answer, 'tags': tags, 'filter_session': context_filter_session})
+        return render(request, self.template_name,
+                      {'items': items_for_answer, 'tags': tags, 'filter_session': context_filter_session,
+                       'tags_for_you': [str(tag) for tag in Profile.objects.get(user_id=request.user.id).tags.all()]})

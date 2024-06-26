@@ -4,6 +4,9 @@
 
 {% block content %}
     <ul>
+        {% if request.user.is_authenticated %}
+            <li><button type="button" id="for-you">Для Вас</button></li> <!-- по умолчанию нажата -->
+        {% endif %}
         {% for tag in tags %}
             <li><button type="button" class="tag-button">{{ tag }}</button></li>
         {% endfor %}
@@ -17,11 +20,8 @@
     {% endif %}
 
     <div id="feed">
-    {% if request.user.is_authenticated %}
-
-    {% else %}
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
-        {% for item, profile, addition in items_for_unauthenticated %}
+        {% for item, profile, addition in items %}
             <p>{{ item.created_at }}</p>
             <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
             {% if profile.photo %}
@@ -44,7 +44,6 @@
             </ul>
             <hr>
         {% endfor %}
-    {% endif %}
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -98,14 +97,13 @@
             }
 
             var page = 1;
-            var filter;
+            var filter = [];
+            var is_click = false;
             {% if filter_session %}
                 filter = [];
                 {% for element in filter_session %}
                     filter.push("{{ element }}");
                 {% endfor %}
-            {% else %}
-                filter = [];
             {% endif %}
 
             function ajaxOfItems(is_replace) {
@@ -138,6 +136,11 @@
             let tag_buttons = document.querySelectorAll('.tag-button');
             for (let i = 0; i < tag_buttons.length; i++) {
                 tag_buttons[i].addEventListener("click", function() {
+                    if (is_click) {
+                        // также в стилях снять нажатие
+                        filter = [];
+                        is_click = false;
+                    }
                     if (filter.indexOf(tag_buttons[i].textContent) == -1) {
                         filter.push(tag_buttons[i].textContent);
                     } else {
@@ -151,7 +154,24 @@
                 filter = [];
                 page = 0;
                 ajaxOfItems(true);
-            })
+            });
+            {% if request.user.is_authenticated %}
+                document.getElementById('for-you').addEventListener("click", function() {
+                    if (!is_click) {
+                        filter = [];
+                        // также в стилях снять нажатие
+                        {% for tag in tags_for_you %}
+                            filter.push("{{ tag }}");
+                        {% endfor %}
+                        is_click = true;
+                    } else {
+                        filter = [];
+                        is_click = false;
+                    }
+                    page = 0;
+                    ajaxOfItems(true);
+                });
+            {% endif %}
         });
     </script>
 {% endblock %}
