@@ -7,12 +7,19 @@
         {% for tag in tags %}
             <li><button type="button" class="tag-button">{{ tag }}</button></li>
         {% endfor %}
+        {% if request.user.is_authenticated %}
+            <li><button type="button" class="tag-button">Подписки</button></li>
+        {% endif %}
         <li><button type="button" id="set-null">Сбросить фильтр</button></li>
     </ul>
     {% if request.user.is_authenticated %}
         <a href="{% url 'item:item-add' %}">Создать новость</a>
+    {% endif %}
+
+    <div id="feed">
+    {% if request.user.is_authenticated %}
+
     {% else %}
-        <div id="feed">
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items_for_unauthenticated %}
             <p>{{ item.created_at }}</p>
@@ -37,8 +44,8 @@
             </ul>
             <hr>
         {% endfor %}
-        </div>
     {% endif %}
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -112,7 +119,9 @@
                             var all_data = data.all_data;
                             if (is_replace) {
                                 var feed = document.getElementById("feed");
-                                feed.replaceChildren();
+                                if (feed.childElementCount > 0) {
+                                    feed.replaceChildren();
+                                }
                             }
                             setItemsIntoHtml(all_data);
                             page++;
