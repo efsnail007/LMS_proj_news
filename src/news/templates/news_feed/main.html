@@ -1,14 +1,20 @@
 {% extends 'base/base.html' %}
 
-{% block title %} Авторизация {% endblock %}
+{% block title %} Новостная лента {% endblock %}
 
 {% block content %}
+    <ul>
+        {% for tag in tags %}
+            <li><button type="button" class="tag-button">{{ tag }}</button></li>
+        {% endfor %}
+        <li><button type="button" id="set-null">Сбросить фильтр</button></li>
+    </ul>
     {% if request.user.is_authenticated %}
         <a href="{% url 'item:item-add' %}">Создать новость</a>
     {% else %}
         <div id="feed">
         {% for item, profile, addition in items_for_unauthenticated %}
-            {{ item.created_at }}
+            <p>{{ item.created_at }}</p>
             <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
             {% if profile.photo %}
                 <img src="{{ profile.photo.url }}">
@@ -37,68 +43,101 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
-        var page = 1;
+            function setItemsIntoHtml(all_data) {
+                var feed = document.getElementById("feed");
+                for (let i = 0; i < all_data.length; i++) {
+                    let created_at = document.createElement('p');
+                    created_at.textContent = all_data[i]["item"]["created_at"];
+                    feed.appendChild(created_at);
+                    let author_p = document.createElement('p');
+                    author_p.textContent = "Автор: ";
+                    let user_a = document.createElement('a');
+                    user_a.textContent = all_data[i]["item"]["username"]
+                    user_a.href = '/user_page/' + all_data[i]['item']['username'];
+                    author_p.appendChild(user_a);
+                    feed.appendChild(author_p);
+                    if (all_data[i]["profile"]) {
+                        let image = document.createElement('img');
+                        image.src = all_data[i]["profile"];
+                        feed.appendChild(image);
+                    }
+                    let item_text = document.createElement('p');
+                    item_text.textContent = all_data[i]['item']['text'];
+                    feed.appendChild(item_text);
+                    let div_for_files = document.createElement('div');
+                    for (const [file, type] of Object.entries(all_data[i]['addition'])) {
+                        if (type == "image") {
+                            let img_item = document.createElement('img');
+                            img_item.src = file;
+                            feed.appendChild(img_item);
+                        } else {
+                            let video_item = document.createElement('video');
+                            video_item.src = file;
+                            video_item.controls = true;
+                            feed.appendChild(video_item);
+                        }
+                    }
+                    feed.appendChild(div_for_files);
+                    let ul_tags = document.createElement('ul');
+                    let tags = all_data[i]['item']['tags'];
+                    for (let i = 0; i < tags.length; i++) {
+                        let li_tag = document.createElement('li');
+                        li_tag.textContent = tags[i];
+                        ul_tags.appendChild(li_tag);
+                    }
+                    feed.appendChild(ul_tags);
+                    let hr = document.createElement('hr');
+                    feed.appendChild(hr);
+                }
+            }
+
+            var page = 1;
+            var filter;
+            {% if filter_session %}
+                filter = "{{ filter_session }}";
+            {% else %}
+                filter = "";
+            {% endif %}
             document.addEventListener('scroll', function() {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     $.ajax({
                         url: "{% url 'news_feed:news-feed' %}",
-                        data: {'page': page},
+                        data: {'page': page, 'action': 'feed', 'filter': filter},
                         dataType: "json",
                         type: 'GET',
                         success: function(data) {
                             if (page == data.page) {
-                                var all_data = data.items_for_unauthenticated;
-                                var feed = document.getElementById("feed");
-                                for (let i = 0; i < all_data.length; i++) {
-                                    let created_at = document.createElement('p');
-                                    created_at.textContent = all_data[i]["item"]["created_at"];
-                                    feed.appendChild(created_at);
-                                    let author_p = document.createElement('p');
-                                    author_p.textContent = "Автор: ";
-                                    let user_a = document.createElement('a');
-                                    user_a.textContent = all_data[i]["item"]["username"]
-                                    user_a.href = '/user_page/' + all_data[i]['item']['username'];
-                                    author_p.appendChild(user_a);
-                                    feed.appendChild(author_p);
-                                    if (all_data[i]["profile"]) {
-                                        let image = document.createElement('img');
-                                        image.src = all_data[i]["profile"];
-                                        feed.appendChild(image);
-                                    }
-                                    let item_text = document.createElement('p');
-                                    item_text.textContent = all_data[i]['item']['text'];
-                                    feed.appendChild(item_text);
-                                    let div_for_files = document.createElement('div');
-                                    for (const [file, type] of Object.entries(all_data[i]['addition'])) {
-                                        if (type == "image") {
-                                            let img_item = document.createElement('img');
-                                            img_item.src = file;
-                                            feed.appendChild(img_item);
-                                        } else {
-                                            let video_item = document.createElement('video');
-                                            video_item.src = file;
-                                            video_item.controls = true;
-                                            feed.appendChild(video_item);
-                                        }
-                                    }
-                                    feed.appendChild(div_for_files);
-                                    let ul_tags = document.createElement('ul');
-                                    let tags = all_data[i]['item']['tags'];
-                                    for (let i = 0; i < tags.length; i++) {
-                                        let li_tag = document.createElement('li');
-                                        li_tag.textContent = tags[i];
-                                        ul_tags.appendChild(li_tag);
-                                    }
-                                    feed.appendChild(ul_tags);
-                                    let hr = document.createElement('hr');
-                                    feed.appendChild(hr);
-                                }
+                                var all_data = data.all_data;
+                                setItemsIntoHtml(all_data);
                                 page++;
                             }
                         }
                     });
                 }
             });
+            let tag_buttons = document.querySelectorAll('.tag-button');
+            for (let i = 0; i < tag_buttons.length; i++) {
+                tag_buttons[i].addEventListener("click", function() {
+                    filter = tag_buttons[i].textContent;
+                    page = 0;
+                    $.ajax({
+                        url: "{% url 'news_feed:news-feed' %}",
+                        data: {'page': page, 'action': 'filter-start', 'filter': filter},
+                        dataType: "json",
+                        type: 'GET',
+                        success: function(data) {
+                            var all_data = data.all_data;
+                            var feed = document.getElementById("feed");
+                            feed.replaceChildren();
+                            setItemsIntoHtml(all_data);
+                            page++;
+                        }
+                    });
+                });
+            }
+            document.getElementById('set-null').addEventListener("click",  function() {
+                filter = "";
+            })
         });
     </script>
 {% endblock %}

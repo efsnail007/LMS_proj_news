@@ -21,20 +21,42 @@ class NewsFeedView(View):
             type_and_file[str(file)] = mimetype.split('/')[0]
         return type_and_file
 
+    def __get_items(self, items, page):
+        return [{'item': {
+            'username': item.author.username,
+            'text': item.text,
+            'tags': [str(tag) for tag in item.tags.all()],
+            'created_at': datetime.strftime(item.created_at, "%d %B %Y г. %-H:%M"),
+        }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
+            user_id=item.author.id).photo else None,
+            'addition': self.__get_addition(item)}
+            for item in items[page * self.__num_of_items:(page + 1) * self.__num_of_items]]
+
+    # постараться сделать фильтр с несколькими тегами
     def get(self, request, *args, **kwargs):
+        tags = Tags.objects.all()
         items = Item.objects.all().order_by('-created_at')
         page = int(request.GET.get('page', 1))
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            action = request.GET.get('action')
+            filter = request.GET.get('filter')
+            for tag in tags:
+                if filter == str(tag):
+                    if 'filter' in request.session:
+                        request.session['filter'] = [filter]  # request.session['filter'].append(filter)
+                    else:
+                        request.session['filter'] = [filter]
+                    items = Item.objects.filter(tags__in=[tag]).order_by('-created_at')
             locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
-            items_for_unauthenticated = [{'item': {
-                'username': item.author.username,
-                'text': item.text,
-                'tags': [str(tag) for tag in item.tags.all()],
-                'created_at': datetime.strftime(item.created_at, "%d %B %Y %H:%M"),
-            }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(user_id=item.author.id).photo else None,
-            'addition': self.__get_addition(item)}
-                                         for item in items[page*self.__num_of_items:(page+1) * self.__num_of_items]]
-            return JsonResponse({'items_for_unauthenticated': items_for_unauthenticated, 'page': page})
+            if action == 'feed':
+                items_for_unauthenticated = self.__get_items(items, page)
+                return JsonResponse({'all_data': items_for_unauthenticated, 'page': page})
+            if action == 'filter-start':
+                items_for_unauthenticated = self.__get_items(items, 0)
+                return JsonResponse({'all_data': items_for_unauthenticated, 'page': 0})
+        filter_session = request.session.get('filter', None)
+        if filter_session:
+            items = Item.objects.filter(tags__in=[Tags.objects.get(name=filter_session[0])]).order_by('-created_at')
         items_for_unauthenticated = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
                                      item in items[:self.__num_of_items]]
-        return render(request, self.template_name, {'items_for_unauthenticated': items_for_unauthenticated})
+        return render(request, self.template_name, {'items_for_unauthenticated': items_for_unauthenticated, 'tags': tags, 'filter_session': filter_session[0]})
