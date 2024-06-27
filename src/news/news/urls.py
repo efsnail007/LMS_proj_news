@@ -25,7 +25,7 @@ urlpatterns = [
     path('auth/', include('registration.urls')),
     path('reset_password/', include('reset_password.urls')),
     path('user_page/', include('user_page.urls')),
-    path('items/', include('item.urls')),
+    path('item/', include('item.urls')),
 ]
 
 if settings.DEBUG:
