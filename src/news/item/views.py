@@ -116,8 +116,22 @@ def LikeView(request, item_id):
     return redirect("item:item_detail", item_id=item_id)
 
 
-class FeedbackView(LoginRequiredMixin, CreateView):
+class FeedbackView(View):
     model = Feedback
-    form_class = FeedbackForm
     template_name = 'item/feedback.html'
-    success_url = reverse_lazy('item:item_detail')
+
+    def post(self, request, *args, **kwargs):
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            text = form.data['feedback_text']
+            Feedback.objects.create(text_feedback=text, user=request.user, item=Item.objects.get(id=self.kwargs['item_id']))
+            return redirect('item:item_detail', item_id=self.kwargs['item_id'])
+        return render(request, self.template_name, {'form': form})
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {'item_id': self.kwargs['item_id'], 'form': FeedbackForm()})
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('registration:auth')
+        return super().dispatch(request, *args, **kwargs)

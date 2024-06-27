@@ -39,8 +39,5 @@ class NewsCreationForm(forms.ModelForm):
 #         labels =  {'text': 'Текст', 'author': 'Автор комментария'}
     
 
-class FeedbackForm(forms.ModelForm):
-    class Meta:
-        model = Feedback
-        fields = ['user', 'text_feedback', 'item']
-        labels =  {'text_feedback': 'Текст', 'user': 'Пользователь', 'item': 'Новость'}
+class FeedbackForm(forms.Form):
+    feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea)
