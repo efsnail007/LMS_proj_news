@@ -3,7 +3,7 @@
 {% block title %} Удаление новости {% endblock %}
 
 {% block content %}
-     <p>Вы уверены, что хотите удалить новость "{{ item.title }}"?</p>
+     <p>Вы уверены, что хотите удалить новость новость?</p>
     
     <form action="{% url 'item:delete_item' item.id %}" method="post">
         {% csrf_token %}
