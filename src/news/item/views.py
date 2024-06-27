@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView, View
 from .models import Tags, Item, Addition, Feedback
-from user_page.models import Profile
+from user_page.models import Profile, MarkedRecords
 from .forms import NewsCreationForm, FeedbackForm
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import JsonResponse
 import mimetypes
 
 class NewsCreationView(CreateView):
@@ -30,7 +30,6 @@ class NewsCreationView(CreateView):
 
 class ItemDetailView(View):
     model = Item
-    pk_url_kwarg = 'item_id'
     template_name = 'item/item_detail.html'
     # form_class = NewCommentForm
 
@@ -42,10 +41,23 @@ class ItemDetailView(View):
             type_and_file[str(file)] = mimetype.split('/')[0]
         return type_and_file
 
+    def post(self, request, *args, **kwargs):
+        form_name = request.POST.get('form_name')
+        print(form_name)
+        if form_name == 'like-form':
+            record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Like', user=Profile.objects.get(user_id=request.user.id)).exists()
+            if not record:
+                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=Profile.objects.get(user_id=request.user.id), mark='Like')
+                return JsonResponse({'is_liked': True})
+            MarkedRecords.objects.get(item_id=self.kwargs['item_id'], mark='Like', user=Profile.objects.get(user_id=request.user.id)).delete()
+            return JsonResponse({'is_liked': False})
+        return redirect('item:item_detail', item_id=self.kwargs['item_id'])
+
     def get(self, request, *args, **kwargs):
         item = get_object_or_404(Item, id=self.kwargs['item_id'])
         profile = Profile.objects.get(user_id=item.author.id)
-        return render(request, self.template_name, {'item': item, 'profile': profile, 'addition': self.__get_addition(item)})
+        likes_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Like').count()
+        return render(request, self.template_name, {'item': item, 'profile': profile, 'addition': self.__get_addition(item), 'likes_count': likes_count})
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -69,15 +81,16 @@ class ItemUpdateView(UpdateView):
             return redirect('registration:auth')
         return super().dispatch(request, *args, **kwargs)
 
-class ItemDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class ItemDeleteView(DeleteView):
     model = Item
     pk_url_kwarg = 'item_id'
     success_url = reverse_lazy('registration:main') # заменить на news-feed
     template_name = 'item/item_confirm_delete.html'
 
-    def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.id != Item.objects.get(id=self.kwargs[self.pk_url_kwarg]).author.id:
+            return redirect('item:item_detail', item_id=self.kwargs[self.pk_url_kwarg])
+        return super().dispatch(request, *args, **kwargs)
 
 class CommentCreateView(View):
 
@@ -101,20 +114,6 @@ class CommentCreateView(View):
         if not request.user.is_authenticated:
             return redirect('registration:auth')
         return super().dispatch(request, *args, **kwargs)
-
-
-def LikeView(request, item_id):
-    item = get_object_or_404(Item, id=item_id)
-    liked = False
-    if item.like.filter(id=request.user.id).exists():
-        item.like.remove(request.user)
-        liked = False
-    else:
-        item.like.add(request.user)
-        liked = True
-
-    return redirect("item:item_detail", item_id=item_id)
-
 
 class FeedbackView(View):
     model = Feedback

@@ -3,28 +3,59 @@
 {% block title %} Просмотр записи {% endblock %}
 
 {% block content %}
-        <h6>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author }}</a></h6>
-        {% if item.author == request.user %}
-            <p><a href="{% url 'item:update_item' item_id=item.id  %}">Редактировать новость</a></p>
-            <p><a href="{% url 'item:delete_item' item_id=item.id  %}">Удалить новость</a></p>
+    <h6>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author }}</a></h6>
+    {% if item.author == request.user %}
+        <p><a href="{% url 'item:update_item' item_id=item.id  %}">Редактировать новость</a></p>
+        <p><a href="{% url 'item:delete_item' item_id=item.id  %}">Удалить новость</a></p>
+    {% else %}
+        <p><a href="{% url 'item:feedback' item_id=item.id  %}">Оставить жалобу</a></p>
+    {% endif %}
+    {% if profile.photo %}
+        <img src="{{ profile.photo.url }}">
+    {% endif %}
+    <p> Дата публикации: {{ item.created_at }} </p>
+    <p> {{ item.text }} </p>
+    {% for file, type in addition.items %}
+        {% if type == "image" %}
+            <img src="{{ file }}">
         {% else %}
-            <p><a href="{% url 'item:feedback' item_id=item.id  %}">Оставить жалобу</a></p>
+            <video src="{{ file }}" controls></video>
         {% endif %}
-        {% if profile.photo %}
-            <img src="{{ profile.photo.url }}">
-        {% endif %}
-        <p> Дата публикации: {{ item.created_at }} </p>
-        <p> {{ item.text }} </p>
-        {% for file, type in addition.items %}
-            {% if type == "image" %}
-                <img src="{{ file }}">
-            {% else %}
-                <video src="{{ file }}" controls></video>
-            {% endif %}
+    {% endfor %}
+    <ul>
+        {% for tag in item.tags.all %}
+            <li>{{ tag }}</li> <!-- добавить ссылку на news_feed с нужным get-параметром -->
         {% endfor %}
-        <ul>
-            {% for tag in item.tags.all %}
-                <li>{{ tag }}</li> <!-- добавить ссылку на news_feed с нужным get-параметром -->
-            {% endfor %}
-        </ul>
+    </ul>
+    <form method="post" id="like-form" name="like-form">
+        {% csrf_token %}
+        <button type="submit" id="like-button">Лайк</button>
+        <p id="likes_count">{{ likes_count }}</p> <!-- добавить стиль, когда подписан, и когда отписан -->
+    </form>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+          $('#like-form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+              type: "POST",
+              url: "{% url 'item:item_detail' item_id=item.id %}",
+              data: $(this).serialize() + '&form_name=like-form',
+              headers: {
+                        'X-CSRFToken': "{{ csrf_token }}",
+                    },
+              success: function(response) {
+                let likes_count_elem = document.getElementById('likes_count');
+                if (response.is_liked) {
+                    // присваиваем одни стили кнопке
+                    likes_count_elem.textContent = Number(likes_count_elem.textContent) + 1;
+                } else {
+                    // Присваиваем другие стили
+                    likes_count_elem.textContent = Number(likes_count_elem.textContent) - 1;
+                }
+              },
+            });
+          });
+        });
+    </script>
 {% endblock %}
