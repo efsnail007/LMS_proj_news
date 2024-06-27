@@ -7,11 +7,22 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from item.models import Item, Addition
+import mimetypes
 
 # Create your views here.
 
 class UserPageView(View):
     template_name = 'user_page/user_page.html'
+    __num_of_items = 10
+
+    def __get_addition(self, item):
+        type_and_file = {}
+        addition = Addition.objects.filter(item_id=item.id)
+        for file in addition:
+            mimetype, _ = mimetypes.guess_type(str(file))
+            type_and_file[str(file)] = mimetype.split('/')[0]
+        return type_and_file
 
     def __get_is_subscribed(self, request):
         record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
@@ -25,7 +36,10 @@ class UserPageView(View):
 
     def get(self, request, *args, **kwargs):
         record = Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id)
-        return render(request, self.template_name, {'record': record, 'is_subscribed': self.__get_is_subscribed(request)})
+        items = Item.objects.filter(author_id=User.objects.get(username=self.kwargs['username']).id).all().order_by('-created_at').distinct()
+        user_items = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
+                            item in items[:self.__num_of_items]]
+        return render(request, self.template_name, {'user_items': user_items,'record': record, 'is_subscribed': self.__get_is_subscribed(request)})
 
     def post(self, request, *args, **kwargs):
         form_name = request.POST.get('form_name')

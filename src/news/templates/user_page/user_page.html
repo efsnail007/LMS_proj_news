@@ -40,6 +40,29 @@
             <a href="{% url 'item:item-add' %}">Добавить запись</a>
         {% endif %}
         <!-- здесь должны отображаться записи пользователя и репосты -->
+        {% for item, profile, addition in user_items %}
+            <p>{{ item.created_at }}</p>
+            <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}">
+            {% endif %}
+            <p>{{ item.text }}</p>
+            <div>
+                {% for file, type in addition.items %}
+                    {% if type == "image" %}
+                        <img src="{{ file }}">
+                    {% else %}
+                        <video src="{{ file }}" controls></video>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <ul>
+                {% for tag in item.tags.all %}
+                    <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+        {% endfor %}
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript">
