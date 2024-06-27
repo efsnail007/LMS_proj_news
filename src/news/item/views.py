@@ -77,15 +77,18 @@ class ItemUpdateView(UpdateView):
     form_class = NewsCreationForm
     template_name = 'item/item_update.html'
     pk_url_kwarg = 'item_id'
-    success_url = reverse_lazy('item:item_detail')
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+    # Нужно чтобы подгружались старые медиа, чтобы их можно было добавить/удалить (см. реализацию в начале данного файла)
+
+    def get_object(self, queryset=None):
+        return Item.objects.get(id=self.kwargs[self.pk_url_kwarg])
+
+    def get_success_url(self):
+        return reverse_lazy('item:item_detail', args=[self.kwargs[self.pk_url_kwarg]])
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('registration:auth')
+        if request.user.id != Item.objects.get(id=self.kwargs[self.pk_url_kwarg]).author.id:
+            return redirect('item:item_detail', item_id=self.kwargs[self.pk_url_kwarg])
         return super().dispatch(request, *args, **kwargs)
 
 class ItemDeleteView(DeleteView):

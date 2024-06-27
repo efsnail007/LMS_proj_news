@@ -4,7 +4,21 @@
 <h2>Редактирование новости</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+            {% if field.name == 'files' %}
+                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0">
+                    <div class="row align-items-center">
+                        <label for="id_photo" class="text-color"><b>{{ field.label }}</b>
+                            {{ field }}
+                            <span id="id_photo_" class="text-center button-bg form-control border-3 rounded-0 field-style">Выберите файл</span>
+                        </label>
+                    </div>
+                </div>
+            {% else %}
+                {{ field.label }}
+                {{ field }}
+            {% endif %}
+        {% endfor %}
         <button type="submit">Сохранить</button>
     </form>
 {% endblock %}
