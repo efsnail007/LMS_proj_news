@@ -6,27 +6,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods
-# from django.core.mail import send_mail
-from django.contrib import messages
 
-
-class ItemListView(ListView):
-    model = Item
-    template_name = "item/item_list.html"
-    context_object_name = 'item_list'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Лента новостей'
-        return context
-    
-    def get_queryset(self):
-        # return Item.objects.select_related('tags')
-        return Item.objects.all()
-
-class NewsCreationView(LoginRequiredMixin, CreateView):
+class NewsCreationView(CreateView):
     model = Item
     form_class = NewsCreationForm
     template_name = 'item/create.html'
@@ -44,32 +25,31 @@ class NewsCreationView(LoginRequiredMixin, CreateView):
             return redirect('registration:auth')
         return super().dispatch(request, *args, **kwargs)
 
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        else:
-            return False
+    # def test_func(self):
+    #     post = self.get_object()
+    #     if self.request.user == post.author:
+    #         return True
+    #     else:
+    #         return False
     
 
-class ItemDetailView(DetailView):
+class ItemDetailView(View):
     model = Item
     pk_url_kwarg = 'item_id'
     template_name = 'item/item_detail.html'
-    form_class = NewCommentForm
+    # form_class = NewCommentForm
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         
         stuff = get_object_or_404(Item, id=self.kwargs['item_id'])
-        total_likes = stuff.total_likes()
         
-        liked = False
-        if stuff.like.filter(id=self.request.user.id).exists():
-            liked = True
-
-        context["total_likes"] = total_likes
-        context["liked"] = liked
+        # liked = False
+        # if stuff.like.filter(id=self.request.user.id).exists():
+        #     liked = True
+        #
+        # context["total_likes"] = total_likes
+        # context["liked"] = liked
 
         return context
 
@@ -136,26 +116,6 @@ def LikeView(request, item_id):
         liked = True
 
     return redirect("item:item_detail", item_id=item_id)
-
-
-# def feedback_view(request, item_id):
-#     item = get_object_or_404(Item, id=item_id)
-#     if request.method == 'POST':
-#         form = FeedbackForm(request.POST)
-#         if form.is_valid():
-#             name = form.cleaned_data['name']
-#             email = form.cleaned_data['email']
-#             message = form.cleaned_data['message']
-
-#             recipients = ['info@example.com']
-#             recipients.append(email)
-
-#             send_mail(name, message, email, recipients)
-
-#             return redirect("item:item_detail", item_id=item_id)
-#     else:
-#         form = FeedbackForm()
-#     return render(request, 'item/feedback.html', {'form': form, 'item': item})
 
 
 class FeedbackView(LoginRequiredMixin, CreateView):
