@@ -32,15 +32,15 @@ class NewsCreationForm(forms.ModelForm):
     files = MultipleFileField(label='Файлы', required=False)
 
 
-class NewCommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['author', 'text']
-        labels =  {'text': 'Текст', 'author': 'Автор комментария'}
+# class NewCommentForm(forms.ModelForm):
+#     class Meta:
+#         model = Comment
+#         fields = ['author', 'text']
+#         labels =  {'text': 'Текст', 'author': 'Автор комментария'}
     
 
-class FeedbackForm(forms.ModelForm):
-    class Meta:
-        model = Feedback
-        fields = ['user', 'email', 'text_feedback', 'item']
-        labels =  {'text_feedback': 'Текст', 'user': 'Пользователь', 'email': 'Почта', 'item': 'Новость'}
+# class FeedbackForm(forms.ModelForm):
+#     class Meta:
+#         model = Feedback
+#         fields = ['user', 'email', 'text_feedback', 'item']
+#         labels =  {'text_feedback': 'Текст', 'user': 'Пользователь', 'email': 'Почта', 'item': 'Новость'}

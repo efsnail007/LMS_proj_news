@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView, View
-from .models import Tags, Item, Addition, Comment, Feedback
-from .forms import NewsCreationForm, NewCommentForm, FeedbackForm
+from .models import Tags, Item, Addition, Feedback
+from user_page.models import Profile
+from .forms import NewsCreationForm  #, FeedbackForm
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -11,7 +12,7 @@ class NewsCreationView(CreateView):
     model = Item
     form_class = NewsCreationForm
     template_name = 'item/create.html'
-    success_url = reverse_lazy('item:item_list')  
+    success_url = reverse_lazy('item:item_detail')  # потом заменить на ленту
 
     def form_valid(self, form):
         files = form.cleaned_data["files"]
@@ -39,22 +40,24 @@ class ItemDetailView(View):
     template_name = 'item/item_detail.html'
     # form_class = NewCommentForm
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        stuff = get_object_or_404(Item, id=self.kwargs['item_id'])
-        
+    def get(self, request, *args, **kwargs):
+        item = get_object_or_404(Item, id=self.kwargs['item_id'])
+        profile = Profile.objects.get(user_id=item.author.id)
         # liked = False
         # if stuff.like.filter(id=self.request.user.id).exists():
         #     liked = True
         #
         # context["total_likes"] = total_likes
         # context["liked"] = liked
+        return render(request, self.template_name, {'item': item, 'profile': profile})
 
-        return context
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('registration:auth')
+        return super().dispatch(request, *args, **kwargs)
 
 
-class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ItemUpdateView(UpdateView):
     model = Item
     form_class = NewsCreationForm
     template_name = 'item/item_update.html'
@@ -64,6 +67,11 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('registration:auth')
+        return super().dispatch(request, *args, **kwargs)
 
     def test_func(self):
         post = self.get_object()
@@ -118,9 +126,9 @@ def LikeView(request, item_id):
     return redirect("item:item_detail", item_id=item_id)
 
 
-class FeedbackView(LoginRequiredMixin, CreateView):
-    model = Feedback
-    form_class = FeedbackForm
-    template_name = 'item/feedback.html'
-    
-    success_url = reverse_lazy('item:item_list') 
+# class FeedbackView(LoginRequiredMixin, CreateView):
+#     model = Feedback
+#     form_class = FeedbackForm
+#     template_name = 'item/feedback.html'
+#
+#     success_url = reverse_lazy('item:item_list')
