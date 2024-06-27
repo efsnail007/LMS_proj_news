@@ -9,6 +9,9 @@ class RegistrationForm(forms.ModelForm):
     password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
     er_mes = {
         'password_mismatch': 'Введённые пароли не равны',
+        'username_first_symbol': 'Первый символ логина должен быть латинской буквой или нижним подчёркиванием',
+        'username_length': 'Длина логина должна быть равна от 3 до 15 символов',
+        'username_symbols': 'Логин должен в себя включать только латинские буквы, цифры или символы нижнего подчёркивания',
     }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,6 +28,19 @@ class RegistrationForm(forms.ModelForm):
         help_texts = {'username': ''}
         required = ('username', 'first_name', 'last_name', 'email', 'password')
         widgets = {'password': forms.PasswordInput, 'email': forms.EmailInput}
+
+    def clean_username(self):
+        username_value = self.cleaned_data.get('username')
+        match = re.match(r"^[a-zA-Z_][a-zA-Z0-9_]{3,15}$", username_value)
+        if bool(match):
+            return username_value
+        if len(username_value) > 16 or len(username_value) < 3:
+            raise forms.ValidationError(self.er_mes['username_length'])
+        match = re.match(r"^[a-zA-Z_]$", username_value[0])
+        if not bool(match):
+            raise forms.ValidationError(self.er_mes['username_first_symbol'])
+        raise forms.ValidationError(self.er_mes['username_symbols'])
+
 
     def clean_password2(self):
         password1 = self.cleaned_data.get('password')

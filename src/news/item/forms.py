@@ -7,7 +7,7 @@ class MultipleFileInput(forms.ClearableFileInput):
 
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput(attrs={'accept':'image/*,video/*'}))
+        kwargs.setdefault("widget", MultipleFileInput(attrs={'accept':'image/*,video/*', 'class': 'hidden-elem form-control border-3 rounded-0 field-style', 'id': 'id_photo'}))
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
@@ -20,9 +20,13 @@ class MultipleFileField(forms.FileField):
 
 
 class NewsCreationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs['class'] = 'form-control field-style border-3 rounded-0'
+
     class Meta:
         model = Item
-        fields = ['text', 'tags']
+        fields = ['text', 'files', 'tags']
         labels = {'text': 'Текст'}
     tags = forms.ModelMultipleChoiceField(queryset=Tags.objects.all(), widget=forms.CheckboxSelectMultiple, label='Теги', to_field_name='name')
     files = MultipleFileField(label='Файлы', required=False)

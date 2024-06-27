@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+# Create your models here.
+
 class Tags(models.Model):
     name = models.CharField(max_length=100)
 
