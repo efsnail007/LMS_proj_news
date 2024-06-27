@@ -32,12 +32,9 @@ class NewsCreationForm(forms.ModelForm):
     files = MultipleFileField(label='Файлы', required=False)
 
 
-# class NewCommentForm(forms.ModelForm):
-#     class Meta:
-#         model = Comment
-#         fields = ['author', 'text']
-#         labels =  {'text': 'Текст', 'author': 'Автор комментария'}
-    
+class NewCommentForm(forms.Form):
+    comment_text = forms.CharField(label="Комментарий", widget=forms.Textarea)
+
 
 class FeedbackForm(forms.Form):
     feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea)

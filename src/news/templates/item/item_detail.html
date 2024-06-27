@@ -27,11 +27,29 @@
             <li>{{ tag }}</li> <!-- добавить ссылку на news_feed с нужным get-параметром -->
         {% endfor %}
     </ul>
+    <hr>
     <form method="post" id="like-form" name="like-form">
         {% csrf_token %}
         <button type="submit" id="like-button">Лайк</button>
         <p id="likes_count">{{ likes_count }}</p> <!-- добавить стиль, когда подписан, и когда отписан -->
     </form>
+    <form method="post" id="comment-form" name="comment-form">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" id="comment-button">Отправить комментарий</button>
+    </form>
+    <div id="comments">
+        {% for comment in all_comments %}
+            <div>
+                <a href="{% url 'user_page:user-page' comment.user.user.username %}">{{ comment.user.user.username }}</a>
+                {% if comment.user.photo %}
+                    <img src="{{ comment.user.photo.url }}">
+                {% endif %}
+                <p>{{ comment.text }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
@@ -53,6 +71,37 @@
                     // Присваиваем другие стили
                     likes_count_elem.textContent = Number(likes_count_elem.textContent) - 1;
                 }
+              },
+            });
+          });
+          $('#comment-form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+              type: "POST",
+              url: "{% url 'item:item_detail' item_id=item.id %}",
+              data: $(this).serialize() + '&form_name=comment-form',
+              headers: {
+                        'X-CSRFToken': "{{ csrf_token }}",
+                    },
+              success: function(response) {
+                let comments = document.getElementById('comments');
+                let comment_div = document.createElement('div');
+                let comment_text = document.createElement('p');
+                let comment_username = document.createElement('a');
+                comment_username.href = "{% url 'user_page:user-page' request.user.username %}";
+                comment_username.textContent = response.username;
+                comment_div.appendChild(comment_username);
+                let comment_photo = document.createElement('img');
+                if (response.photo) {
+                    comment_photo.src = response.photo;
+                    comment_div.appendChild(comment_photo);
+                }
+                comment_text.textContent = response.text;
+                comment_div.appendChild(comment_text);
+                let hr = document.createElement('hr');
+                comment_div.appendChild(hr);
+                comments.prepend(comment_div);
+                document.getElementById('id_comment_text').value = "";
               },
             });
           });
