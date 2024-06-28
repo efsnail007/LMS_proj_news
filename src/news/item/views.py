@@ -60,6 +60,12 @@ class ItemDetailView(View):
                 text = form.data['comment_text']
                 MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Comment', text=text)
                 return JsonResponse({'text': text, 'username': request.user.username, 'photo': profile.photo.url})
+        elif form_name == 'repost-form':
+            record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Repost', user=profile).exists()
+            if not record:
+                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Repost')
+                return JsonResponse({'is_reposted': True})
+
         return redirect('item:item_detail', item_id=self.kwargs['item_id'])
 
     def get(self, request, *args, **kwargs):
@@ -67,8 +73,9 @@ class ItemDetailView(View):
         profile = Profile.objects.get(user_id=item.author.id)
         likes_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Like').count()
         all_comments = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Comment')[::-1]
+        reposts_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Repost').count()
         return render(request, self.template_name, {'item': item, 'profile': profile,
-        'addition': get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(), 'all_comments': all_comments})
+        'addition': get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(), 'all_comments': all_comments, 'reposts_count': reposts_count})
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

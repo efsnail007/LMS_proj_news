@@ -38,6 +38,11 @@
         {{ comment_form.as_p }}
         <button type="submit" id="comment-button">Отправить комментарий</button>
     </form>
+    <form method="post" id="repost-form" name="repost-form">
+        {% csrf_token %}
+        <button type="submit" id="repost-button">Сделать репост</button>
+        <p id="reposts_count">{{ reposts_count }}</p>
+    </form>
     <div id="comments">
         {% for comment in all_comments %}
             <div>
@@ -102,6 +107,24 @@
                 comment_div.appendChild(hr);
                 comments.prepend(comment_div);
                 document.getElementById('id_comment_text').value = "";
+              },
+            });
+          });
+          $('#repost-form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+              type: "POST",
+              url: "{% url 'item:item_detail' item_id=item.id %}",
+              data: $(this).serialize() + '&form_name=repost-form',
+              headers: {
+                        'X-CSRFToken': "{{ csrf_token }}",
+                    },
+              success: function(response) {
+                let reposts_count_elem = document.getElementById('reposts_count');
+                if (response.is_reposted) {
+
+                    reposts_count_elem.textContent = Number(reposts_count_elem.textContent) + 1;
+                } 
               },
             });
           });
