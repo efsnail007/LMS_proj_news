@@ -9,6 +9,10 @@ class Tags(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Теги'
+        verbose_name_plural = 'Теги'
+
 
 class Item(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -17,6 +21,10 @@ class Item(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = 'Новости'
+        verbose_name_plural = 'Новости'
+
 
 class Addition(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
@@ -24,6 +32,10 @@ class Addition(models.Model):
 
     def __str__(self):
         return self.file.url
+
+    class Meta:
+        verbose_name = 'Дополнительная информация к посту'
+        verbose_name_plural = 'Дополнительная информация к посту'
 
 
 class Feedback(models.Model):

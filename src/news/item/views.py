@@ -32,7 +32,7 @@ class NewsCreationView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('registration:main') # , args=[self.kwargs[self.__item_id]]) # потом заменить на ленту
+        return reverse_lazy('registration:main') # потом заменить на ленту
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
