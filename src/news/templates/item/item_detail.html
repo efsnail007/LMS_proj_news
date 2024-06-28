@@ -15,8 +15,8 @@
     {% endif %}
     <p> Дата публикации: {{ item.created_at }} </p>
     <p> {{ item.text }} </p>
-    {% for file, type in addition.items %}
-        {% if type == "image" %}
+    {% for file, ar in addition.items %}
+        {% if ar.0 == "image" %}
             <img src="{{ file }}">
         {% else %}
             <video src="{{ file }}" controls></video>

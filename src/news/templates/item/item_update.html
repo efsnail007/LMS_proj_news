@@ -1,12 +1,28 @@
 {% extends 'base/base.html' %}
 
+{% load static %}
+
 {% block content %}
 <h2>Редактирование новости</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% for field in form %}
             {% if field.name == 'files' %}
-                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0">
+                <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3">
+                    {% if item_files %}
+                        <p>Загруженные медиа</p>
+                        {% for file, value in item_files.items %}
+                            {% if value.0 == "image" %}
+                                <img src="{{ file }}" class="photo-border img-thumbnail img-fluid rounded mx-auto d-block">
+                            {% else %}
+                                <video src="{{ file }}" controls></video>
+                            {% endif %}
+                            <label class="mr-sm-2 text-color">Удалить</label>
+                            <input type="checkbox" name="photo-clear-{{ value.1 }}">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0 loaded-container">
                     <div class="row align-items-center">
                         <label for="id_photo" class="text-color"><b>{{ field.label }}</b>
                             {{ field }}
@@ -21,4 +37,8 @@
         {% endfor %}
         <button type="submit">Сохранить</button>
     </form>
+    <div id="image-block-id" class="container-fluid hidden-elem mx-auto d-flex align-items-center align-self-center">
+        <img src="" id="image-block-photo-id" class="hidden-elem img-fluid mx-auto">
+    </div>
+    <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
 {% endblock %}

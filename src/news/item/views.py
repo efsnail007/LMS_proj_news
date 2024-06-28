@@ -9,11 +9,20 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 import mimetypes
 
+
+def get_addition(item):
+    type_and_file = {}
+    addition = Addition.objects.filter(item_id=item.id)
+    for file in addition:
+        mimetype, _ = mimetypes.guess_type(str(file))
+        type_and_file[str(file)] = [mimetype.split('/')[0], file.id]
+    return type_and_file
+
+
 class NewsCreationView(CreateView):
     model = Item
     form_class = NewsCreationForm
     template_name = 'item/create.html'
-    success_url = reverse_lazy('item:item_detail')  # потом заменить на ленту
 
     def form_valid(self, form):
         files = form.cleaned_data["files"]
@@ -21,6 +30,9 @@ class NewsCreationView(CreateView):
         for file in files:
             Addition.objects.create(item=form.save(), file=file)
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('registration:main') # , args=[self.kwargs[self.__item_id]]) # потом заменить на ленту
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -31,14 +43,6 @@ class NewsCreationView(CreateView):
 class ItemDetailView(View):
     model = Item
     template_name = 'item/item_detail.html'
-
-    def __get_addition(self, item):
-        type_and_file = {}
-        addition = Addition.objects.filter(item_id=item.id)
-        for file in addition:
-            mimetype, _ = mimetypes.guess_type(str(file))
-            type_and_file[str(file)] = mimetype.split('/')[0]
-        return type_and_file
 
     def post(self, request, *args, **kwargs):
         form_name = request.POST.get('form_name')
@@ -64,7 +68,7 @@ class ItemDetailView(View):
         likes_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Like').count()
         all_comments = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Comment')[::-1]
         return render(request, self.template_name, {'item': item, 'profile': profile,
-        'addition': self.__get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(), 'all_comments': all_comments})
+        'addition': get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(), 'all_comments': all_comments})
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -78,10 +82,28 @@ class ItemUpdateView(UpdateView):
     template_name = 'item/item_update.html'
     pk_url_kwarg = 'item_id'
 
-    # Нужно чтобы подгружались старые медиа, чтобы их можно было добавить/удалить (см. реализацию в начале данного файла)
+    def get_context_data(self, *kwargs):
+        context = super().get_context_data(*kwargs)
+        item_files = get_addition(Item.objects.get(id=self.kwargs[self.pk_url_kwarg]))
+        context['item_files'] = item_files
+        return context
 
-    def get_object(self, queryset=None):
-        return Item.objects.get(id=self.kwargs[self.pk_url_kwarg])
+    def post(self, request, *args, **kwargs):
+        form = NewsCreationForm(request.POST)
+        if form.is_valid():
+            for add in Addition.objects.filter(item_id=self.kwargs[self.pk_url_kwarg]):
+                if request.POST.get('photo-clear-' + str(add.id)) == 'on':
+                    Addition.objects.filter(id=add.id).delete()
+            files = request.FILES.getlist('files')
+            for file in files:
+                Addition.objects.create(item_id=self.kwargs[self.pk_url_kwarg], file=file)
+            itm = Item.objects.filter(id=self.kwargs[self.pk_url_kwarg])
+            itm.update(text=form.cleaned_data['text'])
+            itm.first().tags.clear()
+            for tag in request.POST.getlist('tags'):
+                itm.first().tags.add(Tags.objects.get(name=tag))
+            return redirect('item:item_detail', item_id=self.kwargs[self.pk_url_kwarg])
+        return render(request, self.template_name, {'form': form})
 
     def get_success_url(self):
         return reverse_lazy('item:item_detail', args=[self.kwargs[self.pk_url_kwarg]])
