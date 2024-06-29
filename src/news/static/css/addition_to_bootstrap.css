@@ -103,10 +103,25 @@ textarea {
     resize: none;
 }
 
-.card-height {
+.card-body-height {
     max-height: 500px;
+}
+
+.card-text-height {
+    max-height: 50px;
 }
 
 .btn-filter {
     border: 1px solid #C51FEF;
+}
+
+.btn-filter-on {
+    border: 1px solid white;
+    background-color: #C51FEF;
+    color: white;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
 }

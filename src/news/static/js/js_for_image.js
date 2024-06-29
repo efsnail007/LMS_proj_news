@@ -2,7 +2,9 @@ window.onload = function() {
     // обработка чекбокса очистки
     const checkbox = document.getElementById('photo-clear_id');
     const button = document.getElementById('id_photo');
-    button.addEventListener("change", (e) => addFile(e.target.files));
+    if (button) {
+        button.addEventListener("change", (e) => addFile(e.target.files));
+    }
     const span = document.getElementById('id_photo_');
     if (checkbox) {
         checkbox.addEventListener('change', () => {
