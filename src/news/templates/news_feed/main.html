@@ -3,34 +3,41 @@
 {% block title %} Новостная лента {% endblock %}
 
 {% block content %}
-    <ul>
+    <div class="d-flex flex-wrap btn-group">
         {% if request.user.is_authenticated %}
-            <li><button type="button" id="for-you">Для Вас</button></li> <!-- по умолчанию нажата -->
+            <button type="button" class="btn text-color btn-filter" id="for-you">Для Вас</button>
         {% endif %}
         {% for tag in tags %}
-            <li><button type="button" class="tag-button">{{ tag }}</button></li>
+            <button type="button" class="btn tag-button text-color btn-filter">{{ tag }}</button>
         {% endfor %}
         {% if request.user.is_authenticated %}
-            <li><button type="button" class="tag-button">Подписки</button></li>
+            <button type="button" class="btn tag-button text-color btn-filter">Подписки</button>
         {% endif %}
-        <li><button type="button" id="set-null">Сбросить фильтр</button></li>
-    </ul>
+        <button type="button" class="btn btn-danger" id="set-null">Сбросить фильтр</button>
+    </div>
     {% if request.user.is_authenticated %}
         <a href="{% url 'item:item-add' %}">Создать новость</a>
     {% endif %}
+    <hr>
 
     <div id="feed">
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items %}
-            <div class="card border-dark mx-auto w-50">
-                <div class="card-header">
-                    <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
-                    {% if profile.photo %}
-                        <img class="card-img-top" src="{{ profile.photo.url }}">
-                    {% endif %}
+            <div class="card border-dark mx-auto w-50 overflow-hidden card-height">
+                <div class="card-header bg-pink">
+                    <ul class="nav nav-pills card-header-pills justify-content-between align-items-center">
+                        <li class="nav-item"><a href="{% url 'user_page:user-page' item.author.username %}" class="text-decoration-none text-dark">
+                            {% if profile.photo %}
+                                <img class="rounded-circle border border-dark" width="75" height="75" src="{{ profile.photo.url }}">
+                            {% endif %}
+                            {{ item.author.username }}
+                        </a></li>
+                        <li class="nav-item ml-auto">
+                            <a class="nav-link button-bg text-decoration-none text-color" href="#">На новость</a> <!-- ссылка на новость -->
+                        </li>
+                    </ul>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">{{ item.text }}</p>
                     <div>
                         {% for file, type in addition.items %}
                             {% if type == "image" %}
@@ -40,6 +47,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
+                    <p class="card-text">{{ item.text }}</p>
                 </div>
                 <ul class="list-group list-group-flush">
                     {% for tag in item.tags.all %}

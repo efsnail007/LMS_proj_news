@@ -17,7 +17,7 @@ input[type="checkbox"]{
     color: white;
 }
 
-.button-bg:hover {
+.button-bg:hover, .btn-filter:hover {
     background-color: #C51FEF;
     color: white;
 }
@@ -101,4 +101,12 @@ label[for="id_tags"] {
 
 textarea {
     resize: none;
+}
+
+.card-height {
+    max-height: 500px;
+}
+
+.btn-filter {
+    border: 1px solid #C51FEF;
 }
