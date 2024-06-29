@@ -27,8 +27,10 @@ class NewsCreationView(CreateView):
     def form_valid(self, form):
         files = form.cleaned_data["files"]
         form.instance.author = get_object_or_404(User, username=self.request.user.username)
-        for file in files:
-            Addition.objects.create(item=form.save(), file=file)
+        for i in range(len(files)):
+            if i > 8:
+                break
+            Addition.objects.create(item=form.save(), file=files[i])
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -102,8 +104,11 @@ class ItemUpdateView(UpdateView):
                 if request.POST.get('photo-clear-' + str(add.id)) == 'on':
                     Addition.objects.filter(id=add.id).delete()
             files = request.FILES.getlist('files')
-            for file in files:
-                Addition.objects.create(item_id=self.kwargs[self.pk_url_kwarg], file=file)
+            adds_count = Addition.objects.filter(item_id=self.kwargs[self.pk_url_kwarg]).count()
+            for i in range(len(files)):
+                if i + adds_count > 8:
+                    break
+                Addition.objects.create(item_id=self.kwargs[self.pk_url_kwarg], file=files[i])
             itm = Item.objects.filter(id=self.kwargs[self.pk_url_kwarg])
             itm.update(text=form.cleaned_data['text'])
             itm.first().tags.clear()

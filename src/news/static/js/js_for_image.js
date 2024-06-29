@@ -15,7 +15,8 @@ window.onload = function() {
 
     // показ загружаемой фотографии и видео
     function addFile(files) {
-      if files.length(input_files.length <= 9) {
+      if (document.querySelectorAll('.img-thumbnail').length + files.length <= 9) {
+          document.getElementById('message-warning').classList.add('hidden-elem');
           for (let i = 0; i < files.length; i++) {
             input_files.push(files[i]);
           }
@@ -72,12 +73,13 @@ window.onload = function() {
               }
             }
       } else {
-        // добавить сообщение о том, что больше 9 файлов загружать нельзя
+        document.getElementById('message-warning').classList.remove('hidden-elem');
       }
     }
 
     // обработка удаления из добавленных фото и видео
     function del_media(del_file, column) {
+      document.getElementById('message-warning').classList.add('hidden-elem');
       let input = document.getElementById('id_photo');
       let dataTransfer = new DataTransfer()
       input_files_copy = input_files;
