@@ -129,7 +129,7 @@
             }
 
             document.addEventListener('scroll', function() {
-                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if ((($(window).scrollTop() + $(window).height()) / $(document).height()) > 0.8) {
                     ajaxOfItems(false);
                 }
             });
