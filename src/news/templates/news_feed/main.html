@@ -22,26 +22,34 @@
     <div id="feed">
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items %}
-            <p>{{ item.created_at }}</p>
-            <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
-            {% if profile.photo %}
-                <img src="{{ profile.photo.url }}">
-            {% endif %}
-            <p>{{ item.text }}</p>
-            <div>
-                {% for file, type in addition.items %}
-                    {% if type == "image" %}
-                        <img src="{{ file }}">
-                    {% else %}
-                        <video src="{{ file }}" controls></video>
+            <div class="card border-dark mx-auto w-50">
+                <div class="card-header">
+                    <p>Автор: <a href="{% url 'user_page:user-page' item.author.username %}">{{ item.author.username }}</a></p>
+                    {% if profile.photo %}
+                        <img class="card-img-top" src="{{ profile.photo.url }}">
                     {% endif %}
-                {% endfor %}
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ item.text }}</p>
+                    <div>
+                        {% for file, type in addition.items %}
+                            {% if type == "image" %}
+                                <img src="{{ file }}">
+                            {% else %}
+                                <video src="{{ file }}" controls></video>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for tag in item.tags.all %}
+                        <li class="list-group-item">{{ tag }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="card-footer text-muted">
+                    {{ item.created_at }}
+                </div>
             </div>
-            <ul>
-                {% for tag in item.tags.all %}
-                    <li>{{ tag }}</li>
-                {% endfor %}
-            </ul>
             <hr>
         {% endfor %}
     </div>
