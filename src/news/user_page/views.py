@@ -79,3 +79,13 @@ class UserPageViewEdit(UpdateView):
             return redirect('user_page:user-page', self.kwargs['username'])
         return super().dispatch(request, *args, **kwargs)
 
+
+def follows_list(request, username):
+    record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
+    all_records = list(record_subscription.subscription_profiles.all())
+    if len(all_records) > 0:
+        return render(request, 'user_page/follow_list.html', {'follows': all_records})
+
+
+
+
