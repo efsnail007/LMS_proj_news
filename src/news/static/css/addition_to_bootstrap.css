@@ -103,9 +103,9 @@ textarea {
     resize: none;
 }
 
-.card-body-height {
+/*.card-body-height {
     max-height: 500px;
-}
+}*/
 
 .card-text-height {
     max-height: 50px;

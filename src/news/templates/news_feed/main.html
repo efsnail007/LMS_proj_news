@@ -21,12 +21,11 @@
         <a href="{% url 'item:item-add' %}">Создать новость</a>
     {% endif %}
     <hr>
-
     <div id="feed" class="">
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items %}
             <!--<div class="row">-->
-            <div class="card border-dark mx-auto col-10 col-sm-9 col-md-10 overflow-hidden">
+            <div class="card border-dark mx-auto col-10 col-sm-9 col-md-10 col-lg-5 overflow-hidden">
                 <div class="card-header bg-pink">
                     <ul class="nav nav-pills card-header-pills justify-content-between align-items-center">
                         <li class="nav-item"><a href="{% url 'user_page:user-page' item.author.username %}" class="text-decoration-none text-dark">
@@ -42,23 +41,38 @@
                 </div>
                 <div class="card-body">
                     <div class="my-3 card-body-height overflow-hidden">
-                        <div class="row d-flex justify-content-center">
-                        {% for file, type in addition.items %}
-                            <div class="col-7 col-lg-2 mt-2">
-                            {% if type == "image" %}
-                                <img src="{{ file }}" class="img-fluid photo-border border border-dark">
-                            {% else %}
-                                <video src="{{ file }}" class="img-fluid video-border" controls></video>
-                            {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
+                        <!--<div class="row d-flex justify-content-center">-->
+                        <div class="container-fluid my-carousel">
+                                <div id="carouselExample{{forloop.counter0}}" class="carousel slide" data-ride="carousel" data-bs-interval="false">
+                                        <div class="carousel-inner">
+                                                {% for file, type in addition.items %}
+                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                    {% if type == "image" %}
+                                                        <img src="{{ file }}" class="photo-border border border-dark d-block w-100">
+                                                    {% else %}
+                                                        <video src="{{ file }}" class="video-border border border-dark d-block w-100" controls autoplay muted></video>
+                                                    {% endif %}
+                                                    </div>
+                                                {% endfor %}
+
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Предыдущий</span>
+                                          </button>
+                                          <button class="carousel-control-next" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Следующий</span>
+                                          </button>
+                                </div>
+                        </div>
+                    <!--</div>-->
                     </div>
                     <div class="card-text-height overflow-hidden">
                         <p class="card-text">{{ item.text }}</p>
                     </div>
-                </div> 
-                <ul class="list-group list-group-horizontal">
+                </div>
+                <ul class="d-flex flex-wrap list-group list-group-horizontal">
                     {% for tag in item.tags.all %}
                         <li class="list-group-item btn-filter-on">{{ tag }}</li>
                     {% endfor %}
@@ -77,6 +91,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
+
             function setItemsIntoHtml(all_data) {
                 var feed = document.getElementById("feed");
                 for (let i = 0; i < all_data.length; i++) {
