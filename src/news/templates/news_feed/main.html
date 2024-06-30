@@ -5,76 +5,85 @@
 {% block title %} Новостная лента {% endblock %}
 
 {% block content %}
-    <div class="d-flex flex-wrap btn-group">
+    <!-- можно потом попробовать засунуть в меню -->
+    <div class="d-flex flex-wrap justify-content-around p-2 w-100 sticky-top z-3 bg-light my-2">
         {% if request.user.is_authenticated %}
-            <button type="button" class="btn text-color btn-filter" id="for-you">Для Вас</button>
+            <a href="{% url 'item:item-add' %}" class="mt-2 text-color avatar"><svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 20 20">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                </svg></a>
         {% endif %}
-        {% for tag in tags %}
-            <button type="button" class="btn tag-button text-color btn-filter">{{ tag }}</button>
-        {% endfor %}
-        {% if request.user.is_authenticated %}
-            <button type="button" class="btn tag-button text-color btn-filter">Подписки</button>
-        {% endif %}
-        <button type="button" class="btn btn-danger" id="set-null">Сбросить фильтр</button>
+        <div class="dropdown my-2">
+            <button class="btn dropdown-toggle btn-filter-on" type="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Фильтры</button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                {% if request.user.is_authenticated %}
+                <button class="dropdown-item btn text-color btn-filter" id="for-you" type="button">Для Вас</button>
+                {% endif %}
+                {% for tag in tags %}
+                <button class="dropdown-item btn tag-button text-color btn-filter" type="button">{{ tag }}</button>
+                {% endfor %}
+                {% if request.user.is_authenticated %}
+                <button class="dropdown-item btn tag-button text-color btn-filter" type="button">Подписки</button>
+                {% endif %}
+            </div>
+        </div>
+        <button class="btn btn-danger my-2" type="button" id="set-null">Сбросить фильтр</button>
     </div>
-    {% if request.user.is_authenticated %}
-        <a href="{% url 'item:item-add' %}">Создать новость</a>
-    {% endif %}
     <hr>
-    <div id="feed" class="">
+    <div id="feed">
             <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
         {% for item, profile, addition in items %}
-            <!--<div class="row">-->
-            <div class="card border-dark mx-auto col-10 col-sm-9 col-md-10 col-lg-5 overflow-hidden">
-                <div class="card-header bg-pink">
+            <div class="card border-dark mx-auto col-11 col-sm-9 col-md-10 col-lg-5 col-lg-6 overflow-hidden">
+                <div class="card-header">
                     <ul class="nav nav-pills card-header-pills justify-content-between align-items-center">
+                        <li class="nav-item mb-2 w-100">
+                            <a class="nav-link button-bg text-decoration-none text-center text-color" href="#">На страницу новости</a> <!-- ссылка на новость -->
+                        </li>
                         <li class="nav-item"><a href="{% url 'user_page:user-page' item.author.username %}" class="text-decoration-none text-dark">
                             {% if profile.photo %}
                                 <img class="avatar rounded-circle border border-dark" src="{{ profile.photo.url }}">
                             {% endif %}
                             {{ item.author.username }}
                         </a></li>
-                        <li class="nav-item ml-auto">
-                            <a class="nav-link button-bg text-decoration-none text-color" href="#">На новость</a> <!-- ссылка на новость -->
-                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="my-3 card-body-height overflow-hidden">
-                        <!--<div class="row d-flex justify-content-center">-->
                         <div class="container-fluid my-carousel">
                                 <div id="carouselExample{{forloop.counter0}}" class="carousel slide" data-ride="carousel" data-bs-interval="false">
                                         <div class="carousel-inner">
-                                                {% for file, type in addition.items %}
-                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                                    {% if type == "image" %}
-                                                        <img src="{{ file }}" class="photo-border border border-dark d-block w-100">
-                                                    {% else %}
-                                                        <video src="{{ file }}" class="video-border border border-dark d-block w-100" controls autoplay muted></video>
-                                                    {% endif %}
-                                                    </div>
-                                                {% endfor %}
-
+                                            {% for file, type in addition.items %}
+                                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                {% if type == "image" %}
+                                                    <img src="{{ file }}" class="photo-border border border-dark d-block w-100">
+                                                {% else %}
+                                                    <video src="{{ file }}" class="video-border border border-dark d-block w-100" controls loop autoplay muted></video>
+                                                {% endif %}
+                                                </div>
+                                            {% endfor %}
                                         </div>
+                                        {% if addition|length > 1 %}
                                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="prev">
                                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                             <span class="visually-hidden">Предыдущий</span>
-                                          </button>
-                                          <button class="carousel-control-next" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="next">
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="next">
                                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                             <span class="visually-hidden">Следующий</span>
-                                          </button>
+                                        </button>
+                                        {% endif %}
                                 </div>
                         </div>
-                    <!--</div>-->
                     </div>
-                    <div class="card-text-height overflow-hidden">
+                    <div class="card-text-items card-text-height overflow-hidden container-fluid">
                         <p class="card-text">{{ item.text }}</p>
                     </div>
+                    <div class="hidden-elem card-text-read container-fluid">
+                        <a class="link-secondary">Читать далее...</a>
+                    </div>
                 </div>
-                <ul class="d-flex flex-wrap list-group list-group-horizontal">
+                <ul class="d-flex flex-wrap list-group list-group-horizontal justify-content-center p-2">
                     {% for tag in item.tags.all %}
-                        <li class="list-group-item btn-filter-on">{{ tag }}</li>
+                        <li class="list-group-item tag-list-item">{{ tag }}</li>
                     {% endfor %}
                 </ul>
                 <div class="card-footer text-muted">
@@ -88,10 +97,24 @@
         <img src="" id="image-block-photo-id" class="hidden-elem img-fluid mx-auto">
     </div>
     <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {
+        let all_card_items = document.querySelectorAll('.card-text-items');
+        let all_card_text_read = document.querySelectorAll('.card-text-read');
+        for (let i = 0; i < all_card_items.length; i++) {
+            if (all_card_items[i].scrollHeight > all_card_items[i].clientHeight) {
+                all_card_text_read[i].classList.toggle('hidden-elem');
+                all_card_text_read[i].querySelector('a').addEventListener("click", function() {
+                    all_card_items[i].classList.toggle('card-text-height');
+                    if (all_card_text_read[i].querySelector('a').textContent == "Читать далее...") {
+                        all_card_text_read[i].querySelector('a').textContent = "Свернуть";
+                    } else {
+                        all_card_text_read[i].querySelector('a').textContent = "Читать далее...";
+                    }
+                });
+            }
+        }
 
+        $(document).ready(function() {
             function setItemsIntoHtml(all_data) {
                 var feed = document.getElementById("feed");
                 for (let i = 0; i < all_data.length; i++) {
@@ -143,11 +166,21 @@
             var page = 1;
             var filter = [];
             var is_click = false;
+            let btn_filters = document.querySelectorAll('.btn-filter');
             {% if filter_session %}
                 filter = [];
                 {% for element in filter_session %}
                     filter.push("{{ element }}");
                 {% endfor %}
+                    console.log({{ filter_session }});
+                    for (let i = 0; i < btn_filters.length; i++) {
+                        {% for element in filter_session %}
+                            if (btn_filters[i].textContent == "{{ element }}") {
+                                btn_filters[i].classList.toggle('btn-filter-on');
+                                btn_filters[i].classList.toggle('btn-filter');
+                            }
+                        {% endfor %}
+                    }
             {% endif %}
 
             function ajaxOfItems(is_replace) {
@@ -180,6 +213,8 @@
             let tag_buttons = document.querySelectorAll('.tag-button');
             for (let i = 0; i < tag_buttons.length; i++) {
                 tag_buttons[i].addEventListener("click", function() {
+                    tag_buttons[i].classList.toggle('btn-filter-on');
+                    tag_buttons[i].classList.toggle('btn-filter');
                     if (is_click) {
                         // также в стилях снять нажатие
                         filter = [];
@@ -200,7 +235,10 @@
                 ajaxOfItems(true);
             });
             {% if request.user.is_authenticated %}
-                document.getElementById('for-you').addEventListener("click", function() {
+                let for_you = document.getElementById('for-you');
+                for_you.addEventListener("click", function() {
+                    for_you.classList.toggle('btn-filter');
+                    for_you.classList.toggle('btn-filter-on');
                     if (!is_click) {
                         filter = [];
                         // также в стилях снять нажатие

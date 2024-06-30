@@ -7,6 +7,7 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/addition_to_bootstrap.css' %}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     {% block styles %}
         <!-- здесь подключаем нужные стили -->
     {% endblock %}
@@ -23,9 +24,8 @@
         <!-- Общий футер для всех страниц -->
         {% endblock %}
     </footer>
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
-    <!-- Подключаем плагин Popper (необходим для работы компонента Dropdown и др.) -->
-    <!-- Подключаем Bootstrap JS -->
-    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
 </body>
 </html>

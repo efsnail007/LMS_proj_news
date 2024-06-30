@@ -17,13 +17,13 @@ input[type="checkbox"]{
     color: white;
 }
 
-.button-bg:hover, .btn-filter:hover {
+.button-bg:hover, .btn-filter:hover, .btn-filter-on:hover, .btn-filter-on:focus {
     background-color: #C51FEF;
     color: white;
 }
 
 .text-color {
-    color: #C51FEF;
+    color: #8F00C8;
 }
 
 .field-style {
@@ -103,21 +103,21 @@ textarea {
     resize: none;
 }
 
-/*.card-body-height {
-    max-height: 500px;
-}*/
+.card-text {
+    color: #500070;
+}
 
 .card-text-height {
-    max-height: 50px;
+    max-height: 100px;
 }
 
 .btn-filter {
     border: 1px solid #C51FEF;
 }
 
-.btn-filter-on {
+.btn-filter-on, .tag-list-item {
     border: 1px solid white;
-    background-color: #C51FEF;
+    background-color: #7E0090;
     color: white;
 }
 
