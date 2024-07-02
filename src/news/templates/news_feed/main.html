@@ -6,13 +6,14 @@
 
 {% block content %}
     <!-- можно потом попробовать засунуть в меню -->
-    <div class="d-flex flex-wrap justify-content-around p-2 w-100 sticky-top z-3 bg-light my-2">
+    <div class="d-flex flex-wrap justify-content-around p-2 w-100 sticky-top z-3 bg-light mb-2">
         {% if request.user.is_authenticated %}
             <a href="{% url 'item:item-add' %}" class="mt-2 text-color avatar"><svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 20 20">
                   <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                 </svg></a>
         {% endif %}
         <div class="dropdown my-2">
+            <!-- разобраться со стилями нажатия -->
             <button class="btn dropdown-toggle btn-filter-on" type="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Фильтры</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                 {% if request.user.is_authenticated %}
@@ -30,7 +31,7 @@
     </div>
     <hr>
     <div id="feed">
-            <!-- добавить ещё ссылку на страницу новости, но перед этим посмотреть, как она реализована и возможно, придётся добавить redirect не авторизованным пользователям-->
+            <!-- добавить ещё ссылку на страницу новости-->
         {% for item, profile, addition in items %}
             <div class="card border-dark mx-auto col-11 col-sm-9 col-md-10 col-lg-5 col-lg-6 overflow-hidden">
                 <div class="card-header">
@@ -47,7 +48,7 @@
                     </ul>
                 </div>
                 <div class="card-body">
-                    <div class="my-3 card-body-height overflow-hidden">
+                    <div class="mt-3 overflow-hidden">
                         <div class="container-fluid my-carousel">
                                 <div id="carouselExample{{forloop.counter0}}" class="carousel slide" data-ride="carousel" data-bs-interval="false">
                                         <div class="carousel-inner">
@@ -61,20 +62,30 @@
                                                 </div>
                                             {% endfor %}
                                         </div>
-                                        {% if addition|length > 1 %}
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Предыдущий</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Следующий</span>
-                                        </button>
-                                        {% endif %}
+                                    {% if addition|length > 1 %}
+                                        <div class="mx-2 mt-1 carousel-controls d-flex justify-content-evenly">
+                                            <button class="btn btn-sm btn-secondary" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="prev">
+                                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                  <span class="visually-hidden">Предыдущий</span>
+                                                </button>
+                                            <div class="carousel-indicators d-flex flex-wrap">
+                                            {% for file, type in addition.items %}
+                                                <button type="button" data-bs-target="#carouselExample{{forloop.parentloop.counter0}}" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %} not-active" aria-current="true"></button>
+                                            {% endfor %}
+                                            </div>
+                                                <button class="btn btn-sm btn-secondary" type="button" data-bs-target="#carouselExample{{forloop.counter0}}" data-bs-slide="next">
+                                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                  <span class="visually-hidden">Следующий</span>
+                                                </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
                         </div>
                     </div>
-                    <div class="card-text-items card-text-height overflow-hidden container-fluid">
+                    {% if addition|length > 1 %}
+
+                    {% endif %}
+                    <div class="card-text-items mt-2 card-text-height overflow-hidden container-fluid">
                         <p class="card-text">{{ item.text }}</p>
                     </div>
                     <div class="hidden-elem card-text-read container-fluid">
@@ -165,22 +176,29 @@
 
             var page = 1;
             var filter = [];
-            var is_click = false;
+            var is_click_null = false;
+            var is_click_subscribes = false;
             let btn_filters = document.querySelectorAll('.btn-filter');
+            let for_you = document.getElementById('for-you');
+
             {% if filter_session %}
                 filter = [];
                 {% for element in filter_session %}
                     filter.push("{{ element }}");
                 {% endfor %}
-                    console.log({{ filter_session }});
-                    for (let i = 0; i < btn_filters.length; i++) {
-                        {% for element in filter_session %}
-                            if (btn_filters[i].textContent == "{{ element }}") {
-                                btn_filters[i].classList.toggle('btn-filter-on');
-                                btn_filters[i].classList.toggle('btn-filter');
-                            }
-                        {% endfor %}
-                    }
+                    {% if is_for_you %}
+                        for_you.classList.toggle('btn-filter-on');
+                        for_you.classList.toggle('btn-filter');
+                    {% else %}
+                        for (let i = 0; i < btn_filters.length; i++) {
+                            {% for element in filter_session %}
+                                if (btn_filters[i].textContent == "{{ element }}") {
+                                    btn_filters[i].classList.toggle('btn-filter-on');
+                                    btn_filters[i].classList.toggle('btn-filter');
+                                }
+                            {% endfor %}
+                        }
+                    {% endif %}
             {% endif %}
 
             function ajaxOfItems(is_replace) {
@@ -215,10 +233,10 @@
                 tag_buttons[i].addEventListener("click", function() {
                     tag_buttons[i].classList.toggle('btn-filter-on');
                     tag_buttons[i].classList.toggle('btn-filter');
-                    if (is_click) {
+                    if (is_click_null) {
                         // также в стилях снять нажатие
                         filter = [];
-                        is_click = false;
+                        is_click_null = false;
                     }
                     if (filter.indexOf(tag_buttons[i].textContent) == -1) {
                         filter.push(tag_buttons[i].textContent);
@@ -229,26 +247,35 @@
                     ajaxOfItems(true);
                 });
             }
-            document.getElementById('set-null').addEventListener("click",  function() {
+            let set_null_button = document.getElementById('set-null');
+            set_null_button.addEventListener("click",  function() {
+                for (let i = 0; i < tag_buttons.length; i++) {
+                    tag_buttons[i].classList.add('btn-filter');
+                    tag_buttons[i].classList.remove('btn-filter-on');
+                }
+                for_you.classList.add('btn-filter');
+                for_you.classList.remove('btn-filter-on');
                 filter = [];
                 page = 0;
                 ajaxOfItems(true);
             });
             {% if request.user.is_authenticated %}
-                let for_you = document.getElementById('for-you');
                 for_you.addEventListener("click", function() {
                     for_you.classList.toggle('btn-filter');
                     for_you.classList.toggle('btn-filter-on');
-                    if (!is_click) {
+                    for (let i = 0; i < tag_buttons.length; i++) {
+                        tag_buttons[i].classList.add('btn-filter');
+                        tag_buttons[i].classList.remove('btn-filter-on');
+                    }
+                    if (!is_click_null) {
                         filter = [];
-                        // также в стилях снять нажатие
                         {% for tag in tags_for_you %}
                             filter.push("{{ tag }}");
                         {% endfor %}
-                        is_click = true;
+                        is_click_null = true;
                     } else {
                         filter = [];
-                        is_click = false;
+                        is_click_null = false;
                     }
                     page = 0;
                     ajaxOfItems(true);

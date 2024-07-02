@@ -44,11 +44,11 @@ class NewsFeedView(View):
         if len(filter_ar) > 0:
             if 'Подписки' in request.session.get('filter', []) and request.user.is_authenticated:
                 return Item.objects.filter(author__in=subscriptions, tags__in=filter_ar).order_by(
-                    '-created_at').distinct(), filter_ar.append('Подписки')
+                    '-created_at').distinct(), filter_ar
             return Item.objects.filter(tags__in=filter_ar).order_by('-created_at').distinct(), filter_ar
         else:
             if 'Подписки' in request.session.get('filter', []) and request.user.is_authenticated:
-                return Item.objects.filter(author__in=subscriptions).order_by('-created_at').distinct(), filter_ar.append('Подписки')
+                return Item.objects.filter(author__in=subscriptions).order_by('-created_at').distinct(), filter_ar
         return Item.objects.all().order_by('-created_at'), []
 
 
@@ -67,8 +67,15 @@ class NewsFeedView(View):
         items, context_filter_session = self.__set_items(request, tags)
         items_for_answer = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
                                      item in items[:self.__num_of_items]]
+        if 'Подписки' in request.session.get('filter', []):
+            context_filter_session.append('Подписки')
+        is_for_you = False
+        if 'for-you' in request.session.get('filter', []):
+            is_for_you = True
+            context_filter_session.append('for-you')
         if not request.user.is_authenticated:
             return render(request, self.template_name, {'items': items_for_answer, 'tags': tags, 'filter_session': context_filter_session})
         return render(request, self.template_name,
                       {'items': items_for_answer, 'tags': tags, 'filter_session': context_filter_session,
-                       'tags_for_you': [str(tag) for tag in Profile.objects.get(user_id=request.user.id).tags.all()]})
+                       'tags_for_you': [str(tag) for tag in Profile.objects.get(user_id=request.user.id).tags.all()],
+                       'is_for_you': is_for_you})
