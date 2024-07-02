@@ -106,9 +106,19 @@
     <div id="image-block-id" class="container-fluid hidden-elem mx-auto d-flex align-items-center align-self-center">
         <img src="" id="image-block-photo-id" class="hidden-elem img-fluid mx-auto">
     </div>
-    <script type="module" src="{% static 'js/js_for_image.js' %}"></script>
-    <script type="module">
-        import { image_block_func } from ".{% static 'js/js_for_image.js' %}"
+    <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
+    <script type="text/javascript">
+        var image_block = document.getElementById('image-block-id');
+        var image_block_photo = document.getElementById('image-block-photo-id');
+        function image_block_func(image) {
+            image_block.style.top = window.pageYOffset + "px";
+            image_block.classList.add("image-block");
+            image_block.classList.remove("hidden-elem");
+            image_block_photo.classList.remove("hidden-elem");
+            image_block_photo.src = image.src;
+            document.body.style.overflow = "hidden";
+        }
+
         let all_card_items = document.querySelectorAll('.card-text-items');
         let all_card_text_read = document.querySelectorAll('.card-text-read');
         for (let i = 0; i < all_card_items.length; i++) {
