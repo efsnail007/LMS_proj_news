@@ -1,3 +1,6 @@
+var image_block = document.getElementById('image-block-id');
+var image_block_photo = document.getElementById('image-block-photo-id');
+
 window.onload = function() {
     // обработка чекбокса очистки
     const checkbox = document.getElementById('photo-clear_id');
@@ -76,22 +79,14 @@ window.onload = function() {
     }
 
     // показ окна с фото
-    var image_block = document.getElementById('image-block-id');
-    var image_block_photo = document.getElementById('image-block-photo-id');
+
     var images = document.querySelectorAll('.photo-border');
     for (let i = 0; i < images.length; i++) {
         images[i].addEventListener('click', function() {
             image_block_func(images[i]);
         });
     }
-    function image_block_func(image) {
-        image_block.style.top = window.pageYOffset + "px";
-        image_block.classList.add("image-block");
-        image_block.classList.remove("hidden-elem");
-        image_block_photo.classList.remove("hidden-elem");
-        image_block_photo.src = image.src;
-        document.body.style.overflow = "hidden";
-    }
+
     // закрытие окна с фото
     image_block.addEventListener("click", function(e) {
         if (e.target.id != 'image-block-photo-id') {
@@ -102,3 +97,13 @@ window.onload = function() {
         }
     });
 }
+function image_block_func(image) {
+        image_block.style.top = window.pageYOffset + "px";
+        image_block.classList.add("image-block");
+        image_block.classList.remove("hidden-elem");
+        image_block_photo.classList.remove("hidden-elem");
+        image_block_photo.src = image.src;
+        document.body.style.overflow = "hidden";
+    }
+
+export { image_block_func };
