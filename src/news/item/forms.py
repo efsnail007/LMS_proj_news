@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tags, Item, Addition
+from .models import Item, Addition, Tags, Feedback
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
@@ -30,3 +30,11 @@ class NewsCreationForm(forms.ModelForm):
         labels = {'text': 'Текст'}
     tags = forms.ModelMultipleChoiceField(queryset=Tags.objects.all(), widget=forms.CheckboxSelectMultiple, label='Теги', to_field_name='name')
     files = MultipleFileField(label='Файлы', required=False)
+
+
+class NewCommentForm(forms.Form):
+    comment_text = forms.CharField(label="Комментарий", widget=forms.Textarea)
+
+
+class FeedbackForm(forms.Form):
+    feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea)

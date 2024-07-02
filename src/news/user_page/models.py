@@ -9,6 +9,9 @@ class Profile(models.Model):
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True)
     tags = models.ManyToManyField(Tags)
 
+    def __str__(self):
+        return self.user.username
+
 
 class Subscriptions(models.Model):
     subscriber = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
