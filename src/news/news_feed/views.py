@@ -23,6 +23,7 @@ class NewsFeedView(View):
 
     def __get_items(self, items, page):
         return [{'item': {
+            'id': item.id,
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],

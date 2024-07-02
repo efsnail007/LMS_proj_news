@@ -143,7 +143,7 @@
                firstLi.classList.add("nav-item", "mb-2", "w-100");
                let aPage = document.createElement('a');
                aPage.classList.add("nav-link", "button-bg", "text-decoration-none", "text-center", "text-color");
-               aPage.href = "#"; // ссылка на страницу новости
+               aPage.href = "/item/" + String(data['item']['id']); // ссылка на страницу новости
                aPage.textContent = "На страницу новости";
                firstLi.appendChild(aPage);
                let secondLi = document.createElement('li');
