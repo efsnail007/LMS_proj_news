@@ -19,6 +19,7 @@
         </form>
         <div class="bg-danger" id="message"></div>
     {% endif %}
+    <p><a href="{% url 'user_page:follows' request.user.username %}">Подписки</a></p>
     <p>{{ record.user.username }}</p>
     <p>{{ record.user.first_name }} {{ record.user.last_name }}</p>
     {% if record.photo %}

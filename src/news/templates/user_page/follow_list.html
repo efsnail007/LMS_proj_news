@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+        <h1>Подписки</h1>
+
+        <ul>
+            {% for follow in follows %}
+                <li><a href="{% url 'user_page:user-page' follow.user.username %}">{{ follow.user.username }}</a></li>
+                {% if follow.photo %}
+                    <img src="{{ follow.photo.url }}">
+                {% endif %}
+            {% endfor %}
+        </ul>
+{% endblock %}
