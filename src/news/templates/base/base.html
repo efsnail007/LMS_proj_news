@@ -13,22 +13,20 @@
     {% endblock %}
 </head>
 <body>
-    <header>
-        {% if request.user.is_authenticated %}
-            <ul>
-                <li><a href="">News&Views</a></li> <!-- сслыка должна вести на страницу с лентой новостей -->
-                <li><a href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
-                <li><a href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
-                <li><a href="">Подписки</a></li> <!-- ссылка должна вести на страницу с подписками -->
-                <li><a href="{% url 'registration:logout' %}">Выход</a></li>
-            </ul>
+    <ul class="d-flex flex-wrap justify-content-around p-2 w-100 sticky-top z-3 bg-light mb-2">
+        <li><a href="{% url 'news_feed:news-feed' %}">News&Views</a></li> <!-- сслыка должна вести на страницу с лентой новостей -->
+         {% if request.user.is_authenticated %}
+            <li><a href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
+            <li><a href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
+            <li><a href="">Подписки</a></li> <!-- ссылка должна вести на страницу с подписками -->
+            <li><a href="{% url 'registration:logout' %}">Выход</a></li>
         {% else %}
-              <ul>
-                    <li><a href="">News&Views</a></li> <!-- сслыка должна вести на страницу с лентой новостей -->
-                    <li><a href="{% url 'registration:auth' %}">Войти</a></li>
-                </ul>
+            <li><a href="{% url 'registration:auth' %}">Войти</a></li>
         {% endif %}
-    </header>
+        {% block addedContent %}
+
+        {% endblock %}
+    </ul>
     <main>
         {% block content %}
         <!-- Основное содержимое страницы -->
