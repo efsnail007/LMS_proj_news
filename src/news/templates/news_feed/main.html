@@ -119,21 +119,22 @@
             document.body.style.overflow = "hidden";
         }
 
-        let all_card_items = document.querySelectorAll('.card-text-items');
-        let all_card_text_read = document.querySelectorAll('.card-text-read');
-        for (let i = 0; i < all_card_items.length; i++) {
-            if (all_card_items[i].scrollHeight > all_card_items[i].clientHeight) {
-                all_card_text_read[i].classList.toggle('hidden-elem');
-                all_card_text_read[i].querySelector('a').addEventListener("click", function() {
-                    all_card_items[i].classList.toggle('card-text-height');
-                    if (all_card_text_read[i].querySelector('a').textContent == "Читать далее...") {
-                        all_card_text_read[i].querySelector('a').textContent = "Свернуть";
-                    } else {
-                        all_card_text_read[i].querySelector('a').textContent = "Читать далее...";
-                    }
-                });
+            let all_card_items = document.querySelectorAll('.card-text-items');
+            let all_card_text_read = document.querySelectorAll('.card-text-read');
+            for (let i = 0; i < all_card_items.length; i++) {
+                if (all_card_items[i].scrollHeight > all_card_items[i].clientHeight) {
+                    all_card_text_read[i].classList.remove('hidden-elem');
+                    all_card_text_read[i].querySelector('a').addEventListener("click", function() {
+                        if (all_card_text_read[i].querySelector('a').textContent == "Читать далее...") {
+                            all_card_items[i].classList.remove('card-text-height');
+                            all_card_text_read[i].querySelector('a').textContent = "Свернуть";
+                        } else {
+                            all_card_items[i].classList.add('card-text-height');
+                            all_card_text_read[i].querySelector('a').textContent = "Читать далее...";
+                        }
+                    });
+                }
             }
-        }
 
         $(document).ready(function() {
             var feed = document.getElementById("feed");
@@ -256,15 +257,43 @@
 
                 carousel.appendChild(carousel_slide);
                 card_body.appendChild(carousel);
+
+                let item_text_div = document.createElement('div');
+                item_text_div.classList.add("card-text-items", "mt-2", "card-text-height", "overflow-hidden", "container-fluid");
+                let item_text_p = document.createElement('p');
+                item_text_p.textContent = data['item']['text'];
+                item_text_p.classList.add('card-text');
+                item_text_div.appendChild(item_text_p);
+                let read_div = document.createElement('div');
+                read_div.classList.add("hidden-elem", "card-text-read", "container-fluid");
+                let read_a = document.createElement('a');
+                read_a.classList.add("link-secondary");
+                read_a.textContent = "Читать далее...";
+                read_div.appendChild(read_a);
+                card_body.appendChild(item_text_div);
+                card_body.appendChild(read_div);
+
                 return card_body;
             }
 
-            function cardTags() {
-
+            function cardTextAndTags(data) {
+                let ul_tags = document.createElement('ul');
+                ul_tags.classList.add("d-flex", "flex-wrap", "list-group", "list-group-horizontal", "justify-content-center", "p-2");
+                let tags = data['item']['tags'];
+                for (let i = 0; i < tags.length; i++) {
+                    let li_tag = document.createElement('li');
+                    li_tag.classList.add("list-group-item", "tag-list-item");
+                    li_tag.textContent = tags[i];
+                    ul_tags.appendChild(li_tag);
+                }
+                return ul_tags;
             }
 
-            function cardFooter(created_at) {
-
+            function cardFooter(data) {
+                let footer = document.createElement('div');
+                footer.classList.add("card-footer", "text-muted");
+                footer.textContent = data["item"]["created_at"];
+                return footer;
             }
 
             function setItemsIntoHtml(all_data) {
@@ -272,62 +301,33 @@
                     let card = document.createElement('div');
                     card.classList.add("card", "border-dark", "mx-auto", "col-11", "col-sm-9", "col-md-10", "col-lg-5", "col-lg-6", "overflow-hidden");
 
-                    let card_header = cardHeader(all_data[i]);
-                    card.appendChild(card_header);
-
-                    let card_body = cardBody(all_data[i]);
-                    card.appendChild(card_body);
+                    card.appendChild(cardHeader(all_data[i]));
+                    card.appendChild(cardBody(all_data[i]));
+                    card.appendChild(cardTextAndTags(all_data[i]));
+                    card.appendChild(cardFooter(all_data[i]));
 
                     feed.appendChild(card);
-                }
 
+                    let all_card_items = card.querySelector('.card-body').querySelector('.card-text-items');
+                    let all_card_text_read = card.querySelector('.card-body').querySelector('.card-text-read');
+                    if (all_card_items.scrollHeight > all_card_items.clientHeight) {
+                        all_card_text_read.classList.remove('hidden-elem');
+                        all_card_text_read.querySelector('a').addEventListener("click", function() {
+                            if (all_card_text_read.querySelector('a').textContent == "Читать далее...") {
+                                all_card_items.classList.remove('card-text-height');
+                                all_card_text_read.querySelector('a').textContent = "Свернуть";
+                            } else {
+                                all_card_items.classList.add('card-text-height');
+                                all_card_text_read.querySelector('a').textContent = "Читать далее...";
+                            }
+                        });
+                    }
 
-
-                /* for (let i = 0; i < all_data.length; i++) {
-                    let created_at = document.createElement('p');
-                    created_at.textContent = all_data[i]["item"]["created_at"];
-                    feed.appendChild(created_at);
-                    let author_p = document.createElement('p');
-                    author_p.textContent = "Автор: ";
-                    let user_a = document.createElement('a');
-                    user_a.textContent = all_data[i]["item"]["username"]
-                    user_a.href = '/user_page/' + all_data[i]['item']['username'];
-                    author_p.appendChild(user_a);
-                    feed.appendChild(author_p);
-                    if (all_data[i]["profile"]) {
-                        let image = document.createElement('img');
-                        image.src = all_data[i]["profile"];
-                        feed.appendChild(image);
-                    }
-                    let item_text = document.createElement('p');
-                    item_text.textContent = all_data[i]['item']['text'];
-                    feed.appendChild(item_text);
-                    let div_for_files = document.createElement('div');
-                    for (const [file, type] of Object.entries(all_data[i]['addition'])) {
-                        if (type == "image") {
-                            let img_item = document.createElement('img');
-                            img_item.src = file;
-                            feed.appendChild(img_item);
-                        } else {
-                            let video_item = document.createElement('video');
-                            video_item.src = file;
-                            video_item.controls = true;
-                            feed.appendChild(video_item);
-                        }
-                    }
-                    feed.appendChild(div_for_files);
-                    let ul_tags = document.createElement('ul');
-                    let tags = all_data[i]['item']['tags'];
-                    for (let i = 0; i < tags.length; i++) {
-                        let li_tag = document.createElement('li');
-                        li_tag.textContent = tags[i];
-                        ul_tags.appendChild(li_tag);
-                    }
-                    feed.appendChild(ul_tags);
                     let hr = document.createElement('hr');
                     feed.appendChild(hr);
-                }*/
+                }
             }
+
 
             var page = 1;
             var filter = [];
