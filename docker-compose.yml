@@ -1,0 +1,51 @@
+version: '3.8'
+
+volumes:
+  pgdata:
+  static:
+  media:
+
+services:
+
+  django:
+    build:
+      context: .
+    ports:
+      - '8000:8000'
+    container_name: django
+    env_file:
+      - .env
+    volumes:
+      - ./src/:/app
+      - ./src/news/static:/app/static
+      - ./src/news/media:/app/media
+    depends_on:
+      - postgres
+    command: sh -c "python news/manage.py makemigrations &&
+                    python news/manage.py migrate &&
+                    python news/manage.py runserver 0.0.0.0:8000"
+
+  nginx:
+    container_name: nginx
+    working_dir: /app
+    image: nginx:stable-alpine
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/news/static:/app/static
+      - ./src/news/media:/app/media
+      - ./:/etc/nginx/conf.d:ro
+    links:
+      - django
+    depends_on:
+      - django
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
