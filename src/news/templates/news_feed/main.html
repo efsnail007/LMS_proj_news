@@ -171,6 +171,23 @@
                return card_header;
             }
 
+            function createControlButton(data_slide, carousel_icon, text_hidden) {
+                let button = document.createElement('button');
+                button.type = "button";
+                button.classList.add("btn", "btn-sm", "btn-secondary");
+                button.setAttribute("data-bs-target", "#carouselExample" + String(document.querySelectorAll('.card-body').length));
+                button.setAttribute("data-bs-slide", data_slide);
+                let carousel_control = document.createElement('span');
+                carousel_control.classList.add(carousel_icon);
+                carousel_control.setAttribute("aria-hidden", true);
+                button.appendChild(carousel_control);
+                let previous_hidden = document.createElement('span');
+                previous_hidden.classList.add('visually-hidden');
+                previous_hidden.textContent = text_hidden;
+                button.appendChild(previous_hidden);
+                return button;
+            }
+
             function cardBody(data) {
                 let card_body = document.createElement('div');
                 card_body.classList.add('card-body');
@@ -180,7 +197,7 @@
                 let carousel_slide = document.createElement('div');
                 carousel_slide.id = "carouselExample" + String(document.querySelectorAll('.card-body').length);
                 carousel_slide.classList.add("carousel", "slide");
-                carousel_slide.data_bs_interval = "false";
+                carousel_slide.setAttribute("data-bs-interval", "false");
                 let carousel_inner = document.createElement('div');
                 carousel_inner.classList.add('carousel-inner');
                 let i = 0;
@@ -199,14 +216,44 @@
                         let video_item = document.createElement('video');
                         video_item.src = file;
                         video_item.controls = true;
+                        video_item.loop = "loop";
+                        video_item.muted = true;
+                        video_item.play();
                         video_item.classList.add("video-border", "border", "border-dark", "d-block", "w-100");
                         carousel_item.appendChild(video_item);
                     }
                     carousel_inner.appendChild(carousel_item);
                     i++;
                 }
-
                 carousel_slide.appendChild(carousel_inner);
+                if (Object.keys(data['addition']).length > 1) {
+                    let carousel_control = document.createElement('div');
+                    carousel_control.classList.add("mx-2", "mt-1", "carousel-controls", "d-flex", "justify-content-evenly");
+                    let left_button = createControlButton("prev", 'carousel-control-prev-icon', 'Предыдущий');
+                    carousel_control.appendChild(left_button);
+
+                    let carousel_indicator = document.createElement('div');
+                    carousel_indicator.classList.add("carousel-indicators", "d-flex", "flex-wrap");
+                    i = 0;
+                    for (const [file, type] of Object.entries(data['addition'])) {
+                        let button = document.createElement('button');
+                        button.type = "button";
+                        button.setAttribute("data-bs-target", "#carouselExample" + String(document.querySelectorAll('.card-body').length));
+                        button.setAttribute("data-bs-slide-to", String(i));
+                        if (i == 0) button.classList.add('active');
+                        button.classList.add("not-active");
+                        button.setAttribute("aria-current", true);
+                        carousel_indicator.appendChild(button);
+                        i++;
+                    }
+                    carousel_control.appendChild(carousel_indicator);
+
+                    let right_button = createControlButton("next", 'carousel-control-next-icon', 'Следующий');
+                    carousel_control.appendChild(right_button);
+
+                    carousel_slide.appendChild(carousel_control);
+                }
+
                 carousel.appendChild(carousel_slide);
                 card_body.appendChild(carousel);
                 return card_body;
