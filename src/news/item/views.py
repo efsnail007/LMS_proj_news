@@ -34,7 +34,7 @@ class NewsCreationView(CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('registration:main') # потом заменить на ленту
+        return reverse_lazy('news_feed:news-feed')
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -128,7 +128,7 @@ class ItemUpdateView(UpdateView):
 class ItemDeleteView(DeleteView):
     model = Item
     pk_url_kwarg = 'item_id'
-    success_url = reverse_lazy('registration:main') # заменить на news-feed
+    success_url = reverse_lazy('news_feed:news-feed')
     template_name = 'item/item_confirm_delete.html'
 
     def dispatch(self, request, *args, **kwargs):

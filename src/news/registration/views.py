@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
@@ -11,11 +11,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from user_page.models import Profile, Subscriptions
-
-class MainView(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'registration/main.html')
-
 
 class RegView(CreateView):
     model = User
@@ -31,7 +26,7 @@ class RegView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('registration:main')
+            return redirect('news_feed:news-feed')
         return super().dispatch(request, *args, **kwargs)
 
 class AuthView(LoginView):
@@ -40,4 +35,11 @@ class AuthView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('registration:main')
+        return reverse_lazy('news_feed:news-feed')
+
+
+class CustomLogoutView(LogoutView):
+    template_name = 'news_feed/main.html'
+
+    def get_success_url(self):
+        return reverse_lazy('news_feed:news-feed')

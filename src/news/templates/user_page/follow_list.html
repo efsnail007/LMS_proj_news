@@ -7,7 +7,7 @@
             {% for follow in follows %}
                 <li><a href="{% url 'user_page:user-page' follow.user.username %}">{{ follow.user.username }}</a></li>
                 {% if follow.photo %}
-                    <img src="{{ follow.photo.url }}">
+            <li><img src="{{ follow.photo.url }}"></li>
                 {% endif %}
             {% endfor %}
         </ul>

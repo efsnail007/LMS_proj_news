@@ -10,7 +10,7 @@ class CustomPasswordResetView(PasswordResetView):
     email_template_name = 'reset_password/password_reset_form.html'
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('registration:main')
+            return redirect('news_feed:news-feed')
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
