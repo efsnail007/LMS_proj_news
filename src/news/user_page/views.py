@@ -85,6 +85,7 @@ def follows_list(request, username):
     all_records = list(record_subscription.subscription_profiles.all())
     if len(all_records) > 0:
         return render(request, 'user_page/follow_list.html', {'follows': all_records})
+    return render(request, 'user_page/follow_list.html', {'follows': []})
 
 
 
