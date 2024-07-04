@@ -31,7 +31,7 @@ services:
     image: nginx:stable-alpine
     restart: always
     ports:
-      - "8080:8080"
+      - '8080:5000'
     volumes:
       - ./src/news/static:/app/static
       - ./src/news/media:/app/media
