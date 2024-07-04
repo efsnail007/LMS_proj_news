@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from user_page.models import Profile, Subscriptions
+from django.contrib.auth import logout
 
 class RegView(CreateView):
     model = User
@@ -38,8 +39,6 @@ class AuthView(LoginView):
         return reverse_lazy('news_feed:news-feed')
 
 
-class CustomLogoutView(LogoutView):
-    template_name = 'news_feed/main.html'
-
-    def get_success_url(self):
-        return reverse_lazy('news_feed:news-feed')
+def logout_view(request):
+    logout(request)
+    return redirect('/')
