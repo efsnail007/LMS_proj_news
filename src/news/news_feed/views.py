@@ -5,8 +5,24 @@ from user_page.models import Profile, Subscriptions
 from django.http import JsonResponse
 import mimetypes
 from datetime import datetime
+import locale
 
 # Create your views here.
+
+month_dict = {
+    "January": "января",
+    "February": "февраля",
+    "March": "марта",
+    "April": "апреля",
+    "May": "мая",
+    "June": "июня",
+    "July": "июля",
+    "August": "августа",
+    "September": "сентября",
+    "October": "октября",
+    "November": "ноября",
+    "December": "декабря"
+}
 
 class NewsFeedView(View):
     template_name = "news_feed/main.html"
@@ -20,13 +36,18 @@ class NewsFeedView(View):
             type_and_file[str(file)] = mimetype.split('/')[0]
         return type_and_file
 
+    def __crated_at_month(self, created_at):
+        ar = created_at.split(' ')
+        ar[1] = month_dict[ar[1]]
+        return ' '.join(ar)
+
     def __get_items(self, items, page):
         return [{'item': {
             'id': item.id,
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],
-            'created_at': datetime.strftime(item.created_at, "%d %B %Y г. %-H:%M"),
+            'created_at': self.__crated_at_month(datetime.strftime(item.created_at, "%-d %B %Y г. %-H:%M")),
         }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
             user_id=item.author.id).photo else None,
             'addition': self.__get_addition(item)}
