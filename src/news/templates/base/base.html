@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     {% load static %}
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon/favicon.png' %}"/>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/addition_to_bootstrap.css' %}">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -13,14 +14,20 @@
     {% endblock %}
 </head>
 <body>
-    <ul class="d-flex flex-wrap justify-content-around p-2 w-100 sticky-top z-3 bg-light mb-2">
+    <ul class="d-flex flex-wrap justify-content-around align-items-center p-2 w-100 sticky-top z-3 mb-2 menu-background">
         <!-- добавить ещё аватарку пользователя -->
-        <li><a href="{% url 'news_feed:news-feed' %}">News&Views</a></li>
+        <li><a href="{% url 'news_feed:news-feed' %}" class="text-decoration-none display-6 logo-border text-color"><strong><em>News&Views</em></strong></a></li>
          {% if request.user.is_authenticated %}
-            <li><a href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
-            <li><a href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
-            <li><a href="{% url 'user_page:follows' request.user.username %}">Подписки</a></li>
-            <li><a href="{% url 'registration:logout' %}">Выход</a></li>
+            <li class="w-25"><div class="dropdown my-2">
+                <button class="btn dropdown-toggle w-100 btn-filter-on border border-white text-white" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Меню</button>
+                <ul class="dropdown-menu w-100 text-center" aria-labelledby="dropdownMenu2">
+                    <li><a href="{% url 'item:item-add' %}" class="dropdown-item btn text-color btn-filter">Добавить запись</a></li>
+                    <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
+                    <li><a class="dropdown-item btn text-color btn-filter" href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
+                    <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'user_page:follows' request.user.username %}">Подписки</a></li>
+                    <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'registration:logout' %}">Выход</a></li>
+                </ul>
+            </div></li>
         {% else %}
             <li><a href="{% url 'registration:auth' %}">Войти</a></li>
         {% endif %}
