@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 # Create your models here.
 
@@ -18,8 +20,8 @@ class Item(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     tags = models.ManyToManyField(Tags)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=datetime.now() + timedelta(hours=3))
+    updated_at = models.DateTimeField(default=datetime.now() + timedelta(hours=3))
 
     class Meta:
         verbose_name = 'Новости'

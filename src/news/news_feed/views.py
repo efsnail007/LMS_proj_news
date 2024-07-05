@@ -5,7 +5,6 @@ from user_page.models import Profile, Subscriptions
 from django.http import JsonResponse
 import mimetypes
 from datetime import datetime
-import locale
 
 # Create your views here.
 
@@ -61,7 +60,7 @@ class NewsFeedView(View):
             filter = request.GET.get('filter').split()
             request.session['filter'] = filter
             items, _ = self.__set_items(request, tags)
-            locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
+
             if action == 'feed':
                 items_for_answer = self.__get_items(items, page)
                 return JsonResponse({'all_data': items_for_answer, 'page': page})
