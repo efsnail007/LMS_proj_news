@@ -14,10 +14,18 @@ window.onload = function() {
     }
 
     var input_files = [];
+    var limit = 9;
+
+    let form = document.querySelector('form');
+    if (form) {
+        if (form.classList.contains('one-photo')) {
+            limit = 2;
+        }
+    }
 
     // показ загружаемой фотографии и видео
     function addFile(files) {
-      if (document.querySelectorAll('.img-thumbnail').length + files.length <= 9) {
+      if (document.querySelectorAll('.img-thumbnail').length + files.length <= limit) {
           document.getElementById('message-warning').classList.add('hidden-elem');
           for (let i = 0; i < files.length; i++) {
             input_files.push(files[i]);

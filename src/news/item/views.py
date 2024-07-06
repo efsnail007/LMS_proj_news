@@ -79,8 +79,10 @@ class ItemDetailView(View):
         likes_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Like').count()
         all_comments = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Comment')[::-1]
         reposts_count = MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Repost').count()
-        return render(request, self.template_name, {'item': item, 'profile': profile,
-        'addition': get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(), 'all_comments': all_comments, 'reposts_count': reposts_count})
+        return render(request, self.template_name, {'is_liked': MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Like',
+        user=Profile.objects.get(user_id=request.user.id)).exists(), 'is_reposted': MarkedRecords.objects.filter(item=self.kwargs['item_id'], mark='Repost', user=Profile.objects.get(user_id=request.user.id)).exists(),
+        'item': item, 'profile': profile, 'addition': get_addition(item), 'likes_count': likes_count, 'comment_form': NewCommentForm(),
+        'all_comments': all_comments, 'reposts_count': reposts_count})
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

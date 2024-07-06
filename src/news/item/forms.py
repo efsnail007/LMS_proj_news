@@ -33,7 +33,7 @@ class NewsCreationForm(forms.ModelForm):
 
 
 class NewCommentForm(forms.Form):
-    comment_text = forms.CharField(label="Комментарий", widget=forms.Textarea)
+    comment_text = forms.CharField(label="Комментарий", widget=forms.Textarea(attrs={'class': 'form-control field-style border-3 rounded-0'}))
 
 
 class FeedbackForm(forms.Form):
