@@ -47,7 +47,7 @@ class NewsFeedView(View):
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],
-            'created_at': self.__crated_at_month(datetime.strftime(item.created_at, "%-d %B %Y г. %-H:%M")),
+            'created_at': self.__crated_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
         }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
             user_id=item.author.id).photo else None,
             'addition': self.__get_addition(item)}

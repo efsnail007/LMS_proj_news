@@ -19,8 +19,8 @@ class Item(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     tags = models.ManyToManyField(Tags)
-    created_at = models.DateTimeField(default=datetime.now() + timedelta(hours=3))
-    updated_at = models.DateTimeField(default=datetime.now() + timedelta(hours=3))
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
     class Meta:
         verbose_name = 'Новости'

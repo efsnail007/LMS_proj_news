@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 import mimetypes
+from datetime import datetime, timedelta
 
 
 def get_addition(item):
@@ -27,6 +28,8 @@ class NewsCreationView(CreateView):
     def form_valid(self, form):
         files = form.cleaned_data["files"]
         form.instance.author = get_object_or_404(User, username=self.request.user.username)
+        form.instance.created_at = datetime.now() + timedelta(hours=3)
+        form.instance.updated_at = datetime.now() + timedelta(hours=3)
         for i in range(len(files)):
             if i > 8:
                 break
@@ -110,7 +113,7 @@ class ItemUpdateView(UpdateView):
                     break
                 Addition.objects.create(item_id=self.kwargs[self.pk_url_kwarg], file=files[i])
             itm = Item.objects.filter(id=self.kwargs[self.pk_url_kwarg])
-            itm.update(text=form.cleaned_data['text'])
+            itm.update(text=form.cleaned_data['text'], updated_at=datetime.now() + timedelta(hours=3))
             itm.first().tags.clear()
             for tag in request.POST.getlist('tags'):
                 itm.first().tags.add(Tags.objects.get(name=tag))
