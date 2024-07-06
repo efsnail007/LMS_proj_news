@@ -8,7 +8,7 @@
     <li class="flex-grow-1 px-2"><div class="dropdown-center my-2">
         <button class="btn dropdown-toggle w-100 btn-filter-on border border-white text-white" type="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Фильтры</button>
         <div class="dropdown-menu w-100 text-center" aria-labelledby="dropdownMenu">
-            <button class="dropdown-item btn text-color btn-filter" id="set-null" type="button">Сбросить фильтр</button>
+            <button class="dropdown-item btn" id="set-null" type="button">Сбросить фильтр</button>
             {% if request.user.is_authenticated %}
             <button class="dropdown-item btn text-color btn-filter" id="for-you" type="button">Для Вас</button>
             {% endif %}

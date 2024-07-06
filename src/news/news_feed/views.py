@@ -70,7 +70,7 @@ class NewsFeedView(View):
         else:
             if 'Подписки' in request.session.get('filter', []) and request.user.is_authenticated:
                 return Item.objects.filter(author__in=subscriptions).order_by('-created_at').distinct(), filter_ar
-        return Item.objects.all().order_by('-created_at'), []
+        return Item.objects.all().order_by('-created_at').distinct(), []
 
 
     def get(self, request, *args, **kwargs):

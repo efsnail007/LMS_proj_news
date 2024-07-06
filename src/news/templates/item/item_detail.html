@@ -8,14 +8,6 @@
     <div class="card border-dark mx-auto col-11 col-sm-9 col-md-8 col-lg-5 col-lg-6 overflow-hidden">
         <div class="card-header">
             <ul class="d-flex flex-wrap nav nav-pills card-header-pills justify-content-between align-items-center">
-                <li class="nav-item w-100 mb-2">
-                    <a href="{% url 'user_page:user-page' item.author.username %}" class="text-decoration-none text-dark">
-                        {% if profile.photo %}
-                            <img class="avatar rounded-circle border border-dark" src="{{ profile.photo.url }}">
-                        {% endif %}
-                        <span>{{ item.author }}</span>
-                    </a>
-                </li>
                 {% if item.author == request.user %}
                     <li class="nav-item mb-2 w-50 px-2">
                         <a href="{% url 'item:update_item' item_id=item.id  %}" class="nav-link button-bg text-decoration-none text-center text-color">Редактировать</a>
@@ -28,6 +20,14 @@
                         <a href="{% url 'item:feedback' item_id=item.id  %}" class="nav-link button-bg text-decoration-none text-center text-color">Оставить жалобу</a>
                     </li>
                 {% endif %}
+                <li class="nav-item w-100 mb-2">
+                    <a href="{% url 'user_page:user-page' item.author.username %}" class="text-decoration-none text-dark">
+                        {% if profile.photo %}
+                            <img class="avatar rounded-circle border border-dark" src="{{ profile.photo.url }}">
+                        {% endif %}
+                        <span>{{ item.author }}</span>
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -98,6 +98,7 @@
         </form>
     </div>
 
+
     <form method="post" id="comment-form" name="comment-form" class="px-3 mb-3">
         {% csrf_token %}
         {% for field in comment_form %}
@@ -137,98 +138,98 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+          {% if item.author != request.user %}
+              // оставление лайка
+              $('#like-form').submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'item:item_detail' item_id=item.id %}",
+                  data: $(this).serialize() + '&form_name=like-form',
+                  headers: {
+                            'X-CSRFToken': "{{ csrf_token }}",
+                        },
+                  success: function(response) {
+                    let likes_count_elem = document.getElementById('likes_count');
+                    let like_button = document.getElementById('like-button');
+                    like_button.classList.toggle('btn-secondary');
+                    like_button.classList.toggle('btn-danger');
+                    if (response.is_liked) {
+                        likes_count_elem.textContent = Number(likes_count_elem.textContent) + 1;
+                    } else {
+                        likes_count_elem.textContent = Number(likes_count_elem.textContent) - 1;
+                    }
+                  },
+                });
+              });
 
-          // оставление лайка
-          $('#like-form').submit(function(event) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: "{% url 'item:item_detail' item_id=item.id %}",
-              data: $(this).serialize() + '&form_name=like-form',
-              headers: {
-                        'X-CSRFToken': "{{ csrf_token }}",
-                    },
-              success: function(response) {
-                let likes_count_elem = document.getElementById('likes_count');
-                let like_button = document.getElementById('like-button');
-                like_button.classList.toggle('btn-secondary');
-                like_button.classList.toggle('btn-danger');
-                if (response.is_liked) {
-                    likes_count_elem.textContent = Number(likes_count_elem.textContent) + 1;
-                } else {
-                    likes_count_elem.textContent = Number(likes_count_elem.textContent) - 1;
-                }
-              },
-            });
-          });
-
-          // добавление комментариев
-          $('#comment-form').submit(function(event) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: "{% url 'item:item_detail' item_id=item.id %}",
-              data: $(this).serialize() + '&form_name=comment-form',
-              headers: {
-                        'X-CSRFToken': "{{ csrf_token }}",
-                    },
-              success: function(response) {
-                let comments = document.getElementById('comments');
-                let comment_card = document.createElement('div');
-                comment_card.classList.add("card", "border-dark", "mx-auto", "col-11", "col-sm-9", "col-md-8", "col-lg-5", "col-lg-6", "overflow-hidden", "mb-4");
-                let card_header = document.createElement('div');
-                card_header.classList.add("card-header");
-                let comment_profile = document.createElement('a');
-                comment_profile.href = "{% url 'user_page:user-page' request.user.username %}";
-                comment_profile.classList.add("text-decoration-none", "text-dark");
-                let comment_photo = document.createElement('img');
-                if (response.photo) {
-                    comment_photo.src = response.photo;
-                    comment_photo.classList.add("avatar", "rounded-circle", "border", "border-dark");
-                    comment_profile.appendChild(comment_photo);
-                }
-                let comment_span = document.createElement('span');
-                comment_span.textContent = " " + response.username;
-                comment_profile.appendChild(comment_span);
-                card_header.appendChild(comment_profile);
-                comment_card.appendChild(card_header);
-                let comment_body = document.createElement('div');
-                comment_body.classList.add("card-body");
-                let card_text_div = document.createElement('div');
-                card_text_div.classList.add("card-text-items", "mt-2", "card-text-height", "overflow-hidden", "container-fluid");
-                let card_text = document.createElement('p');
-                card_text.classList.add('card-text');
-                card_text.textContent = response.text;
-                card_text_div.appendChild(card_text);
-                comment_body.appendChild(card_text_div);
-                comment_card.appendChild(comment_body);
-                comments.prepend(comment_card);
-                document.getElementById('id_comment_text').value = "";
-              },
-            });
-          });
-
-          // Оставление репоста
-          $('#repost-form').submit(function(event) {
-            event.preventDefault();
-            $.ajax({
-              type: "POST",
-              url: "{% url 'item:item_detail' item_id=item.id %}",
-              data: $(this).serialize() + '&form_name=repost-form',
-              headers: {
-                        'X-CSRFToken': "{{ csrf_token }}",
-                    },
-              success: function(response) {
-                let reposts_count_elem = document.getElementById('reposts_count');
-                let repost_button = document.getElementById('repost-button');
-                repost_button.classList.add('btn-secondary');
-                repost_button.classList.remove('btn-primary');
-                if (response.is_reposted) {
-                    reposts_count_elem.textContent = Number(reposts_count_elem.textContent) + 1;
-                } 
-              },
-            });
-          });
+             // Оставление репоста
+              $('#repost-form').submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'item:item_detail' item_id=item.id %}",
+                  data: $(this).serialize() + '&form_name=repost-form',
+                  headers: {
+                            'X-CSRFToken': "{{ csrf_token }}",
+                        },
+                  success: function(response) {
+                    let reposts_count_elem = document.getElementById('reposts_count');
+                    let repost_button = document.getElementById('repost-button');
+                    repost_button.classList.add('btn-secondary');
+                    repost_button.classList.remove('btn-primary');
+                    if (response.is_reposted) {
+                        reposts_count_elem.textContent = Number(reposts_count_elem.textContent) + 1;
+                    }
+                  },
+                });
+              });
+            {% endif %}
+              // добавление комментариев
+              $('#comment-form').submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'item:item_detail' item_id=item.id %}",
+                  data: $(this).serialize() + '&form_name=comment-form',
+                  headers: {
+                            'X-CSRFToken': "{{ csrf_token }}",
+                        },
+                  success: function(response) {
+                    let comments = document.getElementById('comments');
+                    let comment_card = document.createElement('div');
+                    comment_card.classList.add("card", "border-dark", "mx-auto", "col-11", "col-sm-9", "col-md-8", "col-lg-5", "col-lg-6", "overflow-hidden", "mb-4");
+                    let card_header = document.createElement('div');
+                    card_header.classList.add("card-header");
+                    let comment_profile = document.createElement('a');
+                    comment_profile.href = "{% url 'user_page:user-page' request.user.username %}";
+                    comment_profile.classList.add("text-decoration-none", "text-dark");
+                    let comment_photo = document.createElement('img');
+                    if (response.photo) {
+                        comment_photo.src = response.photo;
+                        comment_photo.classList.add("avatar", "rounded-circle", "border", "border-dark");
+                        comment_profile.appendChild(comment_photo);
+                    }
+                    let comment_span = document.createElement('span');
+                    comment_span.textContent = " " + response.username;
+                    comment_profile.appendChild(comment_span);
+                    card_header.appendChild(comment_profile);
+                    comment_card.appendChild(card_header);
+                    let comment_body = document.createElement('div');
+                    comment_body.classList.add("card-body");
+                    let card_text_div = document.createElement('div');
+                    card_text_div.classList.add("card-text-items", "mt-2", "card-text-height", "overflow-hidden", "container-fluid");
+                    let card_text = document.createElement('p');
+                    card_text.classList.add('card-text');
+                    card_text.textContent = response.text;
+                    card_text_div.appendChild(card_text);
+                    comment_body.appendChild(card_text_div);
+                    comment_card.appendChild(comment_body);
+                    comments.prepend(comment_card);
+                    document.getElementById('id_comment_text').value = "";
+                  },
+                });
+              });
         });
     </script>
 {% endblock %}

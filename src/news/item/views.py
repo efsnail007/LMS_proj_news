@@ -52,24 +52,27 @@ class ItemDetailView(View):
     def post(self, request, *args, **kwargs):
         form_name = request.POST.get('form_name')
         profile = Profile.objects.get(user_id=request.user.id)
-        if form_name == 'like-form':
-            record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Like', user=profile).exists()
-            if not record:
-                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Like')
-                return JsonResponse({'is_liked': True})
-            MarkedRecords.objects.get(item_id=self.kwargs['item_id'], mark='Like', user=profile).delete()
-            return JsonResponse({'is_liked': False})
-        elif form_name == 'comment-form':
+        item = get_object_or_404(Item, id=self.kwargs['item_id'])
+        if request.user.id != item.author.id:
+            if form_name == 'like-form':
+                record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Like', user=profile).exists()
+                if not record:
+                    MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Like')
+                    return JsonResponse({'is_liked': True})
+                MarkedRecords.objects.get(item_id=self.kwargs['item_id'], mark='Like', user=profile).delete()
+                return JsonResponse({'is_liked': False})
+            elif form_name == 'repost-form':
+                record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Repost', user=profile).exists()
+                if not record:
+                    MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Repost')
+                    return JsonResponse({'is_reposted': True})
+        if form_name == 'comment-form':
             form = NewCommentForm(request.POST)
             if form.is_valid():
                 text = form.data['comment_text']
-                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Comment', text=text)
+                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile,
+                                             mark='Comment', text=text)
                 return JsonResponse({'text': text, 'username': request.user.username, 'photo': profile.photo.url})
-        elif form_name == 'repost-form':
-            record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Repost', user=profile).exists()
-            if not record:
-                MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile, mark='Repost')
-                return JsonResponse({'is_reposted': True})
 
         return redirect('item:item_detail', item_id=self.kwargs['item_id'])
 

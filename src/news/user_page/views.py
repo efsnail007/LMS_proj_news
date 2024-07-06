@@ -1,16 +1,32 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView
-from .models import Profile, Subscriptions
+from .models import Profile, Subscriptions, MarkedRecords
 from .forms import UserPageEditForm
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from item.models import Item, Addition
+from datetime import datetime
 import mimetypes
 
 # Create your views here.
+
+month_dict = {
+    "January": "января",
+    "February": "февраля",
+    "March": "марта",
+    "April": "апреля",
+    "May": "мая",
+    "June": "июня",
+    "July": "июля",
+    "August": "августа",
+    "September": "сентября",
+    "October": "октября",
+    "November": "ноября",
+    "December": "декабря"
+}
 
 class UserPageView(View):
     template_name = 'user_page/user_page.html'
@@ -34,9 +50,41 @@ class UserPageView(View):
             return False
         return False
 
+    def __crated_at_month(self, created_at):
+        ar = created_at.split(' ')
+        ar[1] = month_dict[ar[1]]
+        return ' '.join(ar)
+
+    def __get_items(self, items, page):
+        return [{'item': {
+            'id': item.id,
+            'username': item.author.username,
+            'text': item.text,
+            'tags': [str(tag) for tag in item.tags.all()],
+            'created_at': self.__crated_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
+        }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
+            user_id=item.author.id).photo else None,
+            'addition': self.__get_addition(item)}
+            for item in items[page * self.__num_of_items:(page + 1) * self.__num_of_items]]
+
     def get(self, request, *args, **kwargs):
+        page = int(request.GET.get('page', 1))
+        reposts = [record.item for record in
+                   MarkedRecords.objects.filter(user=Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id),
+                                                mark='Repost')]
+        ids = [repost.id for repost in reposts]
+        for item in Item.objects.filter(author=User.objects.get(username=self.kwargs['username'])):
+            ids.append(item.id)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            action = request.GET.get('action')
+            items = Item.objects.filter(id__in=ids).order_by('-created_at').distinct()  # сделать так, чтобы можно было удалить репост
+
+            if action == 'feed':
+                items_for_answer = self.__get_items(items, page)
+                return JsonResponse({'all_data': items_for_answer, 'page': page})
+
         record = Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id)
-        items = Item.objects.filter(author_id=User.objects.get(username=self.kwargs['username']).id).all().order_by('-created_at').distinct()
+        items = Item.objects.filter(id__in=ids).order_by('-created_at').distinct()
         user_items = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
                             item in items[:self.__num_of_items]]
         return render(request, self.template_name, {'user_items': user_items,'record': record, 'is_subscribed': self.__get_is_subscribed(request)})
