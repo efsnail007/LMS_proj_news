@@ -5,7 +5,7 @@
 {% block title %} Новостная лента {% endblock %}
 
     {% block addedContent %}
-        <li class="w-25"><div class="dropdown my-2">
+        <li class="flex-grow-1 px-2"><div class="dropdown-center my-2">
             <button class="btn dropdown-toggle w-100 btn-filter-on border border-white text-white" type="button" id="dropdownMenu" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Фильтры</button>
             <div class="dropdown-menu w-100 text-center" aria-labelledby="dropdownMenu">
                 <button class="dropdown-item btn text-color btn-filter" id="set-null" type="button">Сбросить фильтр</button>
@@ -25,7 +25,7 @@
     <hr>
     <div id="feed">
         {% for item, profile, addition in items %}
-            <div class="card border-dark mx-auto col-11 col-sm-9 col-md-10 col-lg-5 col-lg-6 overflow-hidden">
+            <div class="card border-dark mx-auto col-11 col-sm-9 col-md-8 col-lg-5 col-lg-6 overflow-hidden">
                 <div class="card-header">
                     <ul class="nav nav-pills card-header-pills justify-content-between align-items-center">
                         <li class="nav-item mb-2 w-100">
@@ -289,7 +289,7 @@
             function setItemsIntoHtml(all_data) {
                 for (let i = 0; i < all_data.length; i++) {
                     let card = document.createElement('div');
-                    card.classList.add("card", "border-dark", "mx-auto", "col-11", "col-sm-9", "col-md-10", "col-lg-5", "col-lg-6", "overflow-hidden");
+                    card.classList.add("card", "border-dark", "mx-auto", "col-11", "col-sm-9", "col-md-8", "col-lg-5", "col-lg-6", "overflow-hidden");
 
                     card.appendChild(cardHeader(all_data[i]));
                     card.appendChild(cardBody(all_data[i]));

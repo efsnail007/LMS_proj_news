@@ -16,9 +16,9 @@
 <body>
     <ul class="d-flex flex-wrap justify-content-around align-items-center p-2 w-100 sticky-top z-3 mb-2 menu-background">
         <!-- добавить ещё аватарку пользователя -->
-        <li><a href="{% url 'news_feed:news-feed' %}" class="text-decoration-none display-6 logo-border text-color"><strong><em>News&Views</em></strong></a></li>
+        <li class="flex-grow-1 px-2 text-center"><a href="{% url 'news_feed:news-feed' %}" class="text-decoration-none display-6 logo-border text-color"><strong><em>News&Views</em></strong></a></li>
          {% if request.user.is_authenticated %}
-            <li class="w-25"><div class="dropdown my-2">
+            <li class="flex-grow-1 px-2"><div class="dropdown-center my-2">
                 <button class="btn dropdown-toggle w-100 btn-filter-on border border-white text-white" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">Меню</button>
                 <ul class="dropdown-menu w-100 text-center" aria-labelledby="dropdownMenu2">
                     <li><a href="{% url 'item:item-add' %}" class="dropdown-item btn text-color btn-filter">Добавить запись</a></li>
@@ -28,12 +28,13 @@
                     <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'registration:logout' %}">Выход</a></li>
                 </ul>
             </div></li>
-        {% else %}
-            <li><a href="{% url 'registration:auth' %}">Войти</a></li>
         {% endif %}
         {% block addedContent %}
 
         {% endblock %}
+        {% if request.user.is_authenticated == False %}
+            <li class="px-2"><a class="btn w-100 btn-filter-on border border-white text-white" href="{% url 'registration:auth' %}">Войти</a></li>
+        {% endif %}
     </ul>
     <main>
         {% block content %}
