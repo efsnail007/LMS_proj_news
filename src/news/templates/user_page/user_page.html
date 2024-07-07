@@ -37,6 +37,7 @@
                     <p class="card-text display-6 fw-bold">{{ record.date_of_birth }}</p>
                 {% endif %}
                 {% if record.user.username != request.user.username %}
+                    <p><a href="{% url 'user_page:like-list' record.user.username %}" class="btn btn-primary">Понравившиеся записи пользователя</a></p>
                     <p><a href="{% url 'user_page:follows' record.user.username %}" class="btn btn-primary">Подписки пользователя</a></p>
                 {% endif %}
                 {% if record.tags.all %}
