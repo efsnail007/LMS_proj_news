@@ -12,10 +12,18 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    class Meta:
+        verbose_name = 'Профиль'
+        verbose_name_plural = 'Профили'
+
 
 class Subscriptions(models.Model):
     subscriber = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     subscription_profiles = models.ManyToManyField(Profile)
+
+    class Meta:
+        verbose_name = 'Подписки'
+        verbose_name_plural = 'Подписки'
 
 
 class MarkedRecords(models.Model):
@@ -23,3 +31,7 @@ class MarkedRecords(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     mark = models.CharField(max_length=50, choices=[('Like', 'Лайк'), ('Repost', 'Репост'), ('Comment', 'Комментарий')])
     text = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Отмеченные записи'
+        verbose_name_plural = 'Отмеченные записи'

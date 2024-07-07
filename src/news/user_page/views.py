@@ -28,6 +28,13 @@ month_dict = {
     "December": "декабря"
 }
 
+
+def created_at_month(created_at):
+    ar = created_at.split(' ')
+    ar[1] = month_dict[ar[1]]
+    return ' '.join(ar)
+
+
 class UserPageView(View):
     template_name = 'user_page/user_page.html'
     __num_of_items = 10
@@ -50,18 +57,13 @@ class UserPageView(View):
             return False
         return False
 
-    def __crated_at_month(self, created_at):
-        ar = created_at.split(' ')
-        ar[1] = month_dict[ar[1]]
-        return ' '.join(ar)
-
     def __get_items(self, request_username, items, page):
         return [{'item': {
             'id': item.id,
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],
-            'created_at': self.__crated_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
+            'created_at': created_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
             'is_repost': item.author.username != self.kwargs['username'] and request_username == self.kwargs['username'],
         }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
             user_id=item.author.id).photo else None,
@@ -132,6 +134,55 @@ class UserPageViewEdit(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if self.kwargs['username'] != request.user.username:
             return redirect('user_page:user-page', self.kwargs['username'])
+        return super().dispatch(request, *args, **kwargs)
+
+
+class UserLikeList(View):
+    template_name = 'user_page/like_list.html'
+    __num_of_items = 10
+
+    def __get_addition(self, item):
+        type_and_file = {}
+        addition = Addition.objects.filter(item_id=item.id)
+        for file in addition:
+            mimetype, _ = mimetypes.guess_type(str(file))
+            type_and_file[str(file)] = mimetype.split('/')[0]
+        return type_and_file
+
+    def __get_items(self, items, page):
+        return [{'item': {
+            'id': item.id,
+            'username': item.author.username,
+            'text': item.text,
+            'tags': [str(tag) for tag in item.tags.all()],
+            'created_at': created_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
+        }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
+            user_id=item.author.id).photo else None,
+            'addition': self.__get_addition(item),}
+            for item in items[page * self.__num_of_items:(page + 1) * self.__num_of_items]]
+
+    def get(self, request, *args, **kwargs):
+        page = int(request.GET.get('page', 1))
+        likes = [record.item.id for record in
+                   MarkedRecords.objects.filter(user=Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id),
+                                                mark='Like').distinct()]
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            action = request.GET.get('action')
+            items = Item.objects.filter(id__in=likes).order_by('-created_at').distinct()
+            if action == 'feed':
+                items_for_answer = self.__get_items(items, page)
+                return JsonResponse({'all_data': items_for_answer, 'page': page})
+
+        record = Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id)
+        items = Item.objects.filter(id__in=likes).order_by('-created_at').distinct()
+        user_items = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
+                            item in items[:self.__num_of_items]]
+        return render(request, self.template_name, {'user_items': user_items,'record': record, 'username': self.kwargs['username']})
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('registration:auth')
         return super().dispatch(request, *args, **kwargs)
 
 
