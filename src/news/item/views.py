@@ -11,6 +11,7 @@ import mimetypes
 from datetime import datetime, timedelta
 
 
+# формат файл: тип
 def get_addition(item):
     type_and_file = {}
     addition = Addition.objects.filter(item_id=item.id)
@@ -20,6 +21,7 @@ def get_addition(item):
     return type_and_file
 
 
+# обработка создания новости
 class NewsCreationView(CreateView):
     model = Item
     form_class = NewsCreationForm
@@ -30,10 +32,13 @@ class NewsCreationView(CreateView):
         form.instance.author = get_object_or_404(User, username=self.request.user.username)
         form.instance.created_at = datetime.now() + timedelta(hours=3)
         form.instance.updated_at = datetime.now() + timedelta(hours=3)
+
+        # лимит файлов в количестве 9
         for i in range(len(files)):
             if i > 8:
                 break
             Addition.objects.create(item=form.save(), file=files[i])
+
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -45,6 +50,7 @@ class NewsCreationView(CreateView):
         return super().dispatch(request, *args, **kwargs)
     
 
+# обработка просмотра новости
 class ItemDetailView(View):
     model = Item
     template_name = 'item/item_detail.html'
@@ -53,6 +59,8 @@ class ItemDetailView(View):
         form_name = request.POST.get('form_name')
         profile = Profile.objects.get(user_id=request.user.id)
         item = get_object_or_404(Item, id=self.kwargs['item_id'])
+
+        # обработка данных для возврата по ajax
         if request.user.id != item.author.id:
             if form_name == 'like-form':
                 record = MarkedRecords.objects.filter(item_id=self.kwargs['item_id'], mark='Like', user=profile).exists()
@@ -93,6 +101,7 @@ class ItemDetailView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+# редактирование новости
 class ItemUpdateView(UpdateView):
     model = Item
     form_class = NewsCreationForm
@@ -108,15 +117,20 @@ class ItemUpdateView(UpdateView):
     def post(self, request, *args, **kwargs):
         form = NewsCreationForm(request.POST)
         if form.is_valid():
+            # удаление файлов
             for add in Addition.objects.filter(item_id=self.kwargs[self.pk_url_kwarg]):
                 if request.POST.get('photo-clear-' + str(add.id)) == 'on':
                     Addition.objects.filter(id=add.id).delete()
+
             files = request.FILES.getlist('files')
             adds_count = Addition.objects.filter(item_id=self.kwargs[self.pk_url_kwarg]).count()
+
+            # лимит файлов
             for i in range(len(files)):
                 if i + adds_count > 8:
                     break
                 Addition.objects.create(item_id=self.kwargs[self.pk_url_kwarg], file=files[i])
+
             itm = Item.objects.filter(id=self.kwargs[self.pk_url_kwarg])
             itm.update(text=form.cleaned_data['text'], updated_at=datetime.now() + timedelta(hours=3))
             itm.first().tags.clear()
@@ -133,6 +147,8 @@ class ItemUpdateView(UpdateView):
             return redirect('item:item_detail', item_id=self.kwargs[self.pk_url_kwarg])
         return super().dispatch(request, *args, **kwargs)
 
+
+# удаление новости
 class ItemDeleteView(DeleteView):
     model = Item
     pk_url_kwarg = 'item_id'
@@ -145,6 +161,7 @@ class ItemDeleteView(DeleteView):
         return super().dispatch(request, *args, **kwargs)
 
 
+# отправка жалобы
 class FeedbackView(View):
     model = Feedback
     template_name = 'item/feedback.html'

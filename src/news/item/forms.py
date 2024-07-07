@@ -5,6 +5,7 @@ class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
 
+# множественный выбор файлов
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("widget", MultipleFileInput(attrs={'accept':'image/*,video/*', 'class': 'hidden-elem form-control border-3 rounded-0 field-style', 'id': 'id_photo'}))
@@ -19,6 +20,7 @@ class MultipleFileField(forms.FileField):
         return result
 
 
+# форма создания новости
 class NewsCreationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,9 +34,11 @@ class NewsCreationForm(forms.ModelForm):
     files = MultipleFileField(label='Файлы', required=False)
 
 
+# форма комментария новости
 class NewCommentForm(forms.Form):
     comment_text = forms.CharField(label="Комментарий", widget=forms.Textarea(attrs={'class': 'form-control field-style border-3 rounded-0'}))
 
 
+# форма оставления жалобы
 class FeedbackForm(forms.Form):
     feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea(attrs={'class': 'form-control field-style border-3 rounded-0'}))

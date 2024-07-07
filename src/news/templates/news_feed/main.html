@@ -99,6 +99,7 @@
     </div>
     <script type="text/javascript" src="{% static 'js/js_for_image.js' %}"></script>
     <script type="text/javascript">
+        // просмотр фотографии
         var image_block = document.getElementById('image-block-id');
         var image_block_photo = document.getElementById('image-block-photo-id');
         function image_block_func(image) {
@@ -110,22 +111,23 @@
             document.body.style.overflow = "hidden";
         }
 
-            let all_card_items = document.querySelectorAll('.card-text-items');
-            let all_card_text_read = document.querySelectorAll('.card-text-read');
-            for (let i = 0; i < all_card_items.length; i++) {
-                if (all_card_items[i].scrollHeight > all_card_items[i].clientHeight) {
-                    all_card_text_read[i].classList.remove('hidden-elem');
-                    all_card_text_read[i].querySelector('a').addEventListener("click", function() {
-                        if (all_card_text_read[i].querySelector('a').textContent == "Читать далее...") {
-                            all_card_items[i].classList.remove('card-text-height');
-                            all_card_text_read[i].querySelector('a').textContent = "Свернуть";
-                        } else {
-                            all_card_items[i].classList.add('card-text-height');
-                            all_card_text_read[i].querySelector('a').textContent = "Читать далее...";
-                        }
-                    });
-                }
+        // проверка выхода текста за границы и возможность его раскрытия
+        let all_card_items = document.querySelectorAll('.card-text-items');
+        let all_card_text_read = document.querySelectorAll('.card-text-read');
+        for (let i = 0; i < all_card_items.length; i++) {
+            if (all_card_items[i].scrollHeight > all_card_items[i].clientHeight) {
+                all_card_text_read[i].classList.remove('hidden-elem');
+                all_card_text_read[i].querySelector('a').addEventListener("click", function() {
+                    if (all_card_text_read[i].querySelector('a').textContent == "Читать далее...") {
+                        all_card_items[i].classList.remove('card-text-height');
+                        all_card_text_read[i].querySelector('a').textContent = "Свернуть";
+                    } else {
+                        all_card_items[i].classList.add('card-text-height');
+                        all_card_text_read[i].querySelector('a').textContent = "Читать далее...";
+                    }
+                });
             }
+        }
 
         $(document).ready(function() {
             var feed = document.getElementById("feed");
@@ -163,6 +165,7 @@
                return card_header;
             }
 
+            // кнопки для карусели
             function createControlButton(data_slide, carousel_icon, text_hidden) {
                 let button = document.createElement('button');
                 button.type = "button";
@@ -180,12 +183,12 @@
                 return button;
             }
 
+            # отображение файлов и текста
             function cardBody(data) {
                 let card_body = document.createElement('div');
                 card_body.classList.add('card-body');
                 let carousel = document.createElement('div');
                 carousel.classList.add("mt-3", "overflow-hidden", "container-fluid");
-
                 let carousel_slide = document.createElement('div');
                 carousel_slide.id = "carouselExample" + String(document.querySelectorAll('.card-body').length);
                 carousel_slide.classList.add("carousel", "slide");
@@ -287,6 +290,7 @@
                 return footer;
             }
 
+            // сборка новости для отображения
             function setItemsIntoHtml(all_data) {
                 for (let i = 0; i < all_data.length; i++) {
                     let card = document.createElement('div');
@@ -327,6 +331,7 @@
             let btn_filters = document.querySelectorAll('.btn-filter');
             let for_you = document.getElementById('for-you');
 
+            // применение фильтров с сервера
             {% if filter_session %}
                 filter = [];
                 {% for element in filter_session %}
@@ -347,6 +352,7 @@
                     {% endif %}
             {% endif %}
 
+            // отправка на сервер уведомления о переходе на следующую страницу, а также отправление выбранных фильтров
             function ajaxOfItems(is_replace) {
                 $.ajax({
                     url: "{% url 'news_feed:news-feed' %}",
@@ -369,18 +375,20 @@
                 });
             }
 
+            // получение нововых записей по мере прокрутки страницы
             document.addEventListener('scroll', function() {
                 if ((($(window).scrollTop() + $(window).height()) / $(document).height()) > 0.8) {
                     ajaxOfItems(false);
                 }
             });
+
+            // обработка нажатия по кнопкам фильтра
             let tag_buttons = document.querySelectorAll('.tag-button');
             for (let i = 0; i < tag_buttons.length; i++) {
                 tag_buttons[i].addEventListener("click", function() {
                     tag_buttons[i].classList.toggle('btn-filter-on');
                     tag_buttons[i].classList.toggle('btn-filter');
                     if (is_click_null) {
-                        // также в стилях снять нажатие
                         filter = [];
                         is_click_null = false;
                     }
@@ -393,6 +401,8 @@
                     ajaxOfItems(true);
                 });
             }
+
+            // сброс фильтров
             let set_null_button = document.getElementById('set-null');
             set_null_button.addEventListener("click",  function() {
                 for (let i = 0; i < tag_buttons.length; i++) {
@@ -405,6 +415,8 @@
                 page = 0;
                 ajaxOfItems(true);
             });
+
+            // обработка нажатия фильтра для "Для вас"
             {% if request.user.is_authenticated %}
                 for_you.addEventListener("click", function() {
                     for_you.classList.toggle('btn-filter');

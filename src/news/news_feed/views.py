@@ -24,6 +24,7 @@ month_dict = {
     "December": "декабря"
 }
 
+# просмотр ленты новостей
 class NewsFeedView(View):
     template_name = "news_feed/main.html"
     __num_of_items = 10
@@ -36,23 +37,25 @@ class NewsFeedView(View):
             type_and_file[str(file)] = mimetype.split('/')[0]
         return type_and_file
 
-    def __crated_at_month(self, created_at):
+    def __created_at_month(self, created_at):
         ar = created_at.split(' ')
         ar[1] = month_dict[ar[1]]
         return ' '.join(ar)
 
+    # возврат данных постранично по get-запросу из ajax
     def __get_items(self, items, page):
         return [{'item': {
             'id': item.id,
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],
-            'created_at': self.__crated_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
+            'created_at': self.__created_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
         }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
             user_id=item.author.id).photo else None,
             'addition': self.__get_addition(item)}
             for item in items[page * self.__num_of_items:(page + 1) * self.__num_of_items]]
 
+    # возврат данных согласно фильтру
     def __set_items(self, request, tags):
         subscriptions = None
         if request.user.is_authenticated:
@@ -73,6 +76,7 @@ class NewsFeedView(View):
         return Item.objects.all().order_by('-created_at').distinct(), []
 
 
+    # обработка get-запросов и возврат значений, согласно этим запросам
     def get(self, request, *args, **kwargs):
         tags = Tags.objects.all()
         page = int(request.GET.get('page', 1))

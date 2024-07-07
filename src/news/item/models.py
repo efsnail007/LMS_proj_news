@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 # Create your models here.
 
+# все теги
 class Tags(models.Model):
     name = models.CharField(max_length=100)
 
@@ -15,6 +16,7 @@ class Tags(models.Model):
         verbose_name_plural = 'Теги'
 
 
+# новость
 class Item(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
@@ -27,6 +29,7 @@ class Item(models.Model):
         verbose_name_plural = 'Новости'
 
 
+# фото и видео к новости
 class Addition(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     file = models.FileField(upload_to='news/%Y/%m/%d/')
@@ -39,6 +42,7 @@ class Addition(models.Model):
         verbose_name_plural = 'Дополнительная информация к посту'
 
 
+# бд жалобы
 class Feedback(models.Model):
     text_feedback = models.TextField(default='Жалоба')
     created_at = models.DateTimeField(auto_now_add=True)

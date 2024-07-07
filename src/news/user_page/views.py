@@ -35,6 +35,7 @@ def created_at_month(created_at):
     return ' '.join(ar)
 
 
+# просмотр страницы пользователя
 class UserPageView(View):
     template_name = 'user_page/user_page.html'
     __num_of_items = 10
@@ -120,6 +121,7 @@ class UserPageView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+# редактирование страницы
 class UserPageViewEdit(UpdateView):
     template_name = 'user_page/user_page_edit.html'
     model = Profile
@@ -137,6 +139,7 @@ class UserPageViewEdit(UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 
+# список понравившихся записей пользователя
 class UserLikeList(View):
     template_name = 'user_page/like_list.html'
     __num_of_items = 10
@@ -186,13 +189,10 @@ class UserLikeList(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+# список подписок пользователя
 def follows_list(request, username):
     record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
     all_records = list(record_subscription.subscription_profiles.all())
     if len(all_records) > 0:
         return render(request, 'user_page/follow_list.html', {'follows': all_records, 'username': username})
     return render(request, 'user_page/follow_list.html', {'follows': [], 'username': username})
-
-
-
-
