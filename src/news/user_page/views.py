@@ -55,16 +55,17 @@ class UserPageView(View):
         ar[1] = month_dict[ar[1]]
         return ' '.join(ar)
 
-    def __get_items(self, items, page):
+    def __get_items(self, request_username, items, page):
         return [{'item': {
             'id': item.id,
             'username': item.author.username,
             'text': item.text,
             'tags': [str(tag) for tag in item.tags.all()],
             'created_at': self.__crated_at_month(datetime.strftime(item.updated_at, "%-d %B %Y г. %-H:%M")),
+            'is_repost': item.author.username != self.kwargs['username'] and request_username == self.kwargs['username'],
         }, 'profile': str(Profile.objects.get(user_id=item.author.id).photo.url) if Profile.objects.get(
             user_id=item.author.id).photo else None,
-            'addition': self.__get_addition(item)}
+            'addition': self.__get_addition(item),}
             for item in items[page * self.__num_of_items:(page + 1) * self.__num_of_items]]
 
     def get(self, request, *args, **kwargs):
@@ -76,16 +77,22 @@ class UserPageView(View):
         for item in Item.objects.filter(author=User.objects.get(username=self.kwargs['username'])):
             ids.append(item.id)
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            repost = request.GET.get('repost', None)
+            if repost:
+                record = MarkedRecords.objects.get(user=Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id), item_id=int(repost), mark='Repost')
+                record.delete()
+                return JsonResponse({})
+
             action = request.GET.get('action')
             items = Item.objects.filter(id__in=ids).order_by('-created_at').distinct()  # сделать так, чтобы можно было удалить репост
 
             if action == 'feed':
-                items_for_answer = self.__get_items(items, page)
+                items_for_answer = self.__get_items(request.user.username, items, page)
                 return JsonResponse({'all_data': items_for_answer, 'page': page})
 
         record = Profile.objects.get(user_id=User.objects.get(username=self.kwargs['username']).id)
         items = Item.objects.filter(id__in=ids).order_by('-created_at').distinct()
-        user_items = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item)] for
+        user_items = [[item, Profile.objects.get(user_id=item.author.id), self.__get_addition(item), item.author.username != self.kwargs['username'] and request.user.username == self.kwargs['username']] for
                             item in items[:self.__num_of_items]]
         return render(request, self.template_name, {'user_items': user_items,'record': record, 'is_subscribed': self.__get_is_subscribed(request)})
 

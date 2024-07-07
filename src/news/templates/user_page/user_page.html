@@ -5,54 +5,63 @@
 {% block title %} Страница пользователя {% endblock %}
 
 {% block addedContent %}
-    <li class="flex-grow-1 px-2 text-center"><a href="{% url 'user_page:user-page-edit' request.user.username %}" class="btn btn-filter-on border border-white text-white">Редактировать</a></li>
+    {% if record.user.username == request.user.username %}
+        <li class="flex-grow-1 px-2 text-center"><a href="{% url 'user_page:user-page-edit' request.user.username %}" class="btn btn-filter-on border border-white text-white">Редактировать</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
-    <h1>Страница пользователя {{ record.user.username }}</h1>
-    {% if record.user.username != request.user.username %}
-        <form id="subscribe-form" method="post">
-            {% csrf_token %}
-            <button type="submit" id="subscribe-button" name="subscribe-button-name">
-                {% if is_subscribed %}
-                    Вы подписаны
-                {% else %}
-                    Подписаться
-                {% endif %}
-            </button>
-        </form>
-        <p><a href="{% url 'user_page:follows' record.user.username %}">Подписки пользователя</a></p>
-        <div class="bg-danger" id="message"></div>
-    {% endif %}
-    <p>{{ record.user.username }}</p>
-    <p>{{ record.user.first_name }} {{ record.user.last_name }}</p>
-    {% if record.photo %}
-        <div class="container-fluid">
-            <div class="col-3">
+    <div class="d-flex flex-wrap justify-content-center mb-3 align-items-center">
+        {% if record.photo %}
+            <div class="col-9 col-sm-6 col-md-5 col-lg-5 col-xl-4">
                 <img src="{{ record.photo.url }}" class="photo-border d-block w-100 img-thumbnail img-fluid d-block">
             </div>
-        </div>
-    {% endif %}
-    {% if record.date_of_birth %}
-        <p>Дата рождения: {{ record.date_of_birth }}</p>
-    {% endif %}
-    {% if record.tags.all %}
-        <ul>Любимые теги:
-        {% for tag in record.tags.all %}
-            <li>{{ tag.name }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    <p>Стена:</p>
-        {% if record.user.username == request.user.username %}
-            <a href="{% url 'item:item-add' %}">Добавить запись</a>
         {% endif %}
+            <div class="d-flex flex-column mx-auto">
+                {% if record.user.username != request.user.username %}
+                    <form id="subscribe-form" method="post" class="mb-3 mx-auto">
+                        {% csrf_token %}
+                        <button type="submit" id="subscribe-button" name="subscribe-button-name" class="text-white btn {% if is_subscribed %}btn-secondary{% else %}btn-danger{% endif %}">
+                            {% if is_subscribed %}
+                                Вы подписаны
+                            {% else %}
+                                Подписаться
+                            {% endif %}
+                        </button>
+                    </form>
+                    <div class="bg-danger" id="message"></div>
+                {% endif %}
+                <p class="card-text display-6 fw-bold">{{ record.user.username }}</p>
+                <p class="card-text display-6 fw-bold">{{ record.user.first_name }} {{ record.user.last_name }}</p>
+                {% if record.date_of_birth %}
+                    <p class="card-text display-6 fw-bold">{{ record.date_of_birth }}</p>
+                {% endif %}
+                {% if record.user.username != request.user.username %}
+                    <p><a href="{% url 'user_page:follows' record.user.username %}" class="btn btn-primary">Подписки пользователя</a></p>
+                {% endif %}
+                {% if record.tags.all %}
+                    <p class="card-text display-6 fw-bold">Любимые теги:</p>
+                    <ul class="d-flex flex-wrap list-group list-group-horizontal justify-content-center p-2">
+                    {% for tag in record.tags.all %}
+                        <li class="list-group-item tag-list-item">{{ tag.name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+    </div>
+    <hr>
+    <div class="container-fluid"><p class="text-center text-color display-5 fw-bold">Стена пользователя</p></div>
     <div id="feed">
-        {% for item, profile, addition in user_items %}
+        {% for item, profile, addition, is_repost in user_items %}
             <div class="card border-dark mx-auto col-11 col-sm-9 col-md-8 col-lg-5 col-lg-6 overflow-hidden">
                 <div class="card-header">
                     <ul class="nav nav-pills card-header-pills justify-content-between align-items-center">
-                        <li class="nav-item mb-2 w-100">
+                        {% if is_repost %}
+                            <li class="nav-item mb-2 w-50 px-2">
+                                <button type="button" class="delete-repost-button w-100 nav-link button-bg text-decoration-none text-center text-color" onclick="deleteRepost({{ item.id }}, this)">Отменить репост</button>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item mb-2 {% if is_repost %}w-50 px-2{% else %}w-100{% endif %}">
                             <a class="nav-link button-bg text-decoration-none text-center text-color" href="{% url 'item:item_detail' item.id %}">На страницу новости</a>
                         </li>
                         <li class="nav-item">
@@ -151,6 +160,18 @@
                 }
             }
 
+        function deleteRepost(item_index, delete_button) {
+            $.ajax({
+                url: "{% url 'user_page:user-page' record.user.username %}",
+                data: {'repost': item_index},
+                dataType: "json",
+                type: 'GET',
+                success: function(data) {
+                    delete_button.parentNode.parentNode.parentNode.parentNode.remove();
+                }
+            });
+        }
+
         $(document).ready(function() {
             var feed = document.getElementById("feed");
 
@@ -158,14 +179,13 @@
                let card_header = document.createElement('div');
                card_header.classList.add('card-header');
                let ul = document.createElement('ul');
-               ul.classList.add("nav", "nav-pills", "card-header-pills", "justify-content-between", "align-items-center");
+               ul.classList.add("d-flex", "flex-wrap", "nav", "nav-pills", "card-header-pills", "justify-content-between", "align-items-center");
                let firstLi = document.createElement('li');
-               firstLi.classList.add("nav-item", "mb-2", "w-100");
+               firstLi.classList.add("nav-item", "mb-2");
                let aPage = document.createElement('a');
                aPage.classList.add("nav-link", "button-bg", "text-decoration-none", "text-center", "text-color");
                aPage.href = "/item/" + String(data['item']['id']);
                aPage.textContent = "На страницу новости";
-               firstLi.appendChild(aPage);
                let secondLi = document.createElement('li');
                secondLi.classList.add('nav-item');
                let aUsername = document.createElement('a');
@@ -181,6 +201,24 @@
                span.textContent = " " + data['item']['username'];
                aUsername.appendChild(span);
                secondLi.appendChild(aUsername);
+
+               if (data['item']['is_repost']) {
+                    let deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Отменить репост';
+                    deleteButton.type = "button";
+                    deleteButton.classList.add('delete-repost-button', 'w-100', "nav-link", "button-bg", "text-decoration-none", "text-center", "text-color");
+                    deleteButton.addEventListener("click", function() {
+                        deleteRepost(data['item']['id'], deleteButton)
+                    });
+                    let thirdLi = document.createElement('li');
+                    thirdLi.classList.add("nav-item", "mb-2", "w-50", "px-2");
+                    thirdLi.appendChild(deleteButton);
+                    ul.appendChild(thirdLi);
+                    firstLi.classList.add('w-50');
+               } else {
+                    firstLi.classList.add('w-100');
+               }
+               firstLi.appendChild(aPage);
                ul.appendChild(firstLi);
                ul.appendChild(secondLi);
                card_header.appendChild(ul);
@@ -377,6 +415,8 @@
                         'X-CSRFToken': "{{ csrf_token }}",
                     },
               success: function(response) {
+                document.getElementById('subscribe-button').classList.toggle('btn-secondary');
+                document.getElementById('subscribe-button').classList.toggle('btn-danger');
                 $('#subscribe-button').html(response.text);
               },
               error: function() {
