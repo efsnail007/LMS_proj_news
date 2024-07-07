@@ -3,14 +3,14 @@
 {% load static %}
 
 {% block content %}
-<h2>Редактирование новости</h2>
+<h2 class="text-center card-text">Редактирование новости</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% for field in form %}
             {% if field.name == 'files' %}
                 <div class="form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mx-auto mb-3">
                     {% if item_files %}
-                        <p>Загруженные медиа</p>
+                        <p class="text-color">Загруженные медиа</p>
                         {% for file, value in item_files.items %}
                             {% if value.0 == "image" %}
                                 <img src="{{ file }}" class="photo-border img-thumbnail img-fluid rounded mx-auto d-block">
@@ -22,21 +22,35 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0 loaded-container">
+                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0">
                     <div class="row align-items-center">
                         <label for="id_photo" class="text-color"><b>{{ field.label }}</b>
                             {{ field }}
                             <span id="id_photo_" class="text-center button-bg form-control border-3 rounded-0 field-style">Выберите файл</span>
                         </label>
                     </div>
+                </div>
+                <div class="container mx-auto">
                     <p id="message-warning" class="hidden-elem text-center p-2 bg-warning">Количество элементов не должно быть больше 9</p>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3 justify-content-center loaded-container">
+
+                    </div>
+                </div>
+            {% elif field.name == 'text' %}
+                <div class="form-group container mx-auto form-group col-md-6 col-lg-6 col-xl-7 mb-3 g-0">
+                    <label for="{{ field.auto_id }}" class="text-color"><b>{{ field.label }}</b></label>
+                    {{ field }}
                 </div>
             {% else %}
-                {{ field.label }}
-                {{ field }}
+                <div class="form-group container mx-auto form-group col-9 col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-3 g-0">
+                    <label for="{{ field.auto_id }}" class="text-color"><b>{{ field.label }}</b></label>
+                    {{ field }}
+                </div>
             {% endif %}
         {% endfor %}
-        <button type="submit">Сохранить</button>
+        <div class="container col-10 col-sm-6 col-md-4 col-xl-3 mx-auto my-4 d-flex justify-content-between align-items-center g-0">
+            <button type="submit" class="btn mx-auto px-4 btn-lg button-bg"><b>Сохранить</b></button>
+        </div>
     </form>
     <div id="image-block-id" class="container-fluid hidden-elem mx-auto d-flex align-items-center align-self-center">
         <img src="" id="image-block-photo-id" class="hidden-elem img-fluid mx-auto">

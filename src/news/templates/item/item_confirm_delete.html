@@ -3,11 +3,13 @@
 {% block title %} Удаление новости {% endblock %}
 
 {% block content %}
-     <p>Вы уверены, что хотите удалить новость новость?</p>
+     <p class="card-text text-center">Вы уверены, что хотите удалить новость новость?</p>
     
     <form action="{% url 'item:delete_item' item.id %}" method="post">
         {% csrf_token %}
-        <input type="submit" value="Удалить">
-        <a href="{% url 'item:item_detail' item.id %}">Отмена</a>
+        <div class="d-flex justify-content-center align-items-center">
+            <input type="submit" value="Удалить" class="btn px-4 btn-lg button-bg mx-2">
+            <a href="{% url 'item:item_detail' item.id %}" class="text-decoration-none text-primary">Отмена</a>
+        </div>
     </form>
 {% endblock %}

@@ -37,4 +37,4 @@ class NewCommentForm(forms.Form):
 
 
 class FeedbackForm(forms.Form):
-    feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea)
+    feedback_text = forms.CharField(label='Жалоба', widget=forms.Textarea(attrs={'class': 'form-control field-style border-3 rounded-0'}))

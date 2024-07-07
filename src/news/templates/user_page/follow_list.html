@@ -1,14 +1,16 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-        <h1>Подписки</h1>
+        <h1 class="text-center card-text">Подписки пользователя {{ username }}</h1>
 
-        <ul>
+        <ul class="d-flex col-9 col-sm-6 col-md-5 col-lg-4 flex-column list-group mx-auto">
             {% for follow in follows %}
-                <li><a href="{% url 'user_page:user-page' follow.user.username %}">{{ follow.user.username }}</a></li>
+                <li class="list-group-item"><a href="{% url 'user_page:user-page' follow.user.username %}" class="text-decoration-none text-dark">
                 {% if follow.photo %}
-            <li><img src="{{ follow.photo.url }}"></li>
+                    <img src="{{ follow.photo.url }}" class="avatar rounded-circle border border-dark">
                 {% endif %}
+                    {{ follow.user.username }}</a>
+                </li>
             {% endfor %}
         </ul>
 {% endblock %}
