@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+500 - Внутренняя ошибка сервера
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">500 - Внутренняя ошибка сервера</h1>
+        <p class="lead">Извините, что-то пошло не так на нашей стороне.</p>
+        <hr class="my-4">
+        <p>Пожалуйста, попробуйте перезагрузить страницу или вернитесь на <a href="{% url 'registration:main' %}">главную страницу</a>.</p>
+    </div>
+</div>
+{% endblock %}
