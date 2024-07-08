@@ -7,52 +7,15 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from user_page.models import Profile
 from .forms import MessageForm
+from user_page.models import Profile
 
 
 def search_user(request):
-
+    if not request.user.is_authenticated:
+        return redirect('registration:auth')
     if request.method == 'POST':
         search = request.POST['search']
-        searched = User.objects.filter(username__icontains = search)
+        searched = [Profile.objects.get(user=user) for user in User.objects.filter(username__icontains=search, is_superuser=False)]
         return render(request, 'messages/search_user.html', {'search': search, 'searched': searched})
-    else:
-        return render(request, 'messages/search_user.html', {})
-
-
-
-
-class ChatListView(ListView):
-    model = Message
-    template_name = 'messages/chat.html'
-    
-    def get(self, request):
-        chats = (Message.objects.filter(sender=request.user) | Message.objects.filter(reciever=request.user))
-        return render(request, self.template_name, {'user_profile': request.user, 'chats': chats})
-
-class CreateMessageView(CreateView):
-    model = Message
-    template_name = 'messages/create_message.html'
-
-    def get(self, request):
-        chats = (Message.objects.filter(sender=request.user) | Message.objects.filter(reciever=request.user))
-        reciever_user = User.objects.get(username = reciever_name)
-        
-        return render(request, self.template_name, {'user_profile': request.user, 'chats': chats})
-
-
-
-class DialogView(View):
-    model = Message
-    template_name = 'messages/dialog.html'
-
-    def get(self, request, username):
-        companion = User.objects.get(username = username)
-        sender = Message.objects.filter(sender = request.user)
-        messages = (Message.objects.filter(sender = request.user, reciever = companion) | Message.objects.filter(reciever = request.user, sender = companion)).order_by("-created_at")
-        messages2 = (Message.objects.filter(sender = request.user, reciever = companion) | Message.objects.filter(reciever = request.user, sender = companion)).order_by("-created_at")
-        not_readed_messages = Message.objects.filter(reciever = request.user, sender = companion, is_readed = False)
-        for message in not_readed_messages:
-            message.is_readed = True
-            message.save()
-        context = {'sort_messages':messages[::-1], 'companion': companion, 'messages2': messages2}
-        return render(request, 'messages/dialog.html', context)
+    searched = Profile.objects.all()
+    return render(request, 'messages/search_user.html', {'searched': searched})

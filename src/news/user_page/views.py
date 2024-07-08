@@ -191,6 +191,8 @@ class UserLikeList(View):
 
 # список подписок пользователя
 def follows_list(request, username):
+    if not request.user.is_authenticated:
+        return redirect('registration:auth')
     record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
     all_records = list(record_subscription.subscription_profiles.all())
     if len(all_records) > 0:

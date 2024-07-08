@@ -27,7 +27,7 @@ urlpatterns = [
     path('user_page/', include('user_page.urls')),
     path('item/', include('item.urls')),
     path('', include('news_feed.urls')),
-    path('message/', include('message.urls')),
+    path('search_user/', include('message.urls')),
 ]
 
 if settings.DEBUG:

@@ -23,7 +23,7 @@
                 <ul class="dropdown-menu w-100 text-center" aria-labelledby="dropdownMenu2">
                     <li><a href="{% url 'item:item-add' %}" class="dropdown-item btn text-color btn-filter">Добавить запись</a></li>
                     <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'user_page:user-page' request.user.username %}">Профиль</a></li>
-                    <li><a class="dropdown-item btn text-color btn-filter" href="">Сообщения</a></li> <!-- ссылка должна вести на страницу с сообщениями -->
+                    <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'message:search_user' %}">Найти пользователя</a></li>
                     <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'user_page:like-list' request.user.username %}">Понравившиеся<br> записи</a></li>
                     <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'user_page:follows' request.user.username %}">Подписки</a></li>
                     <li><a class="dropdown-item btn text-color btn-filter" href="{% url 'registration:logout' %}">Выход</a></li>

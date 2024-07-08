@@ -1,35 +1,38 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-        <h1>Поиск пользователей</h1>
+        <h1 class="text-center card-text">Поиск пользователей</h1>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="input" class="form-control" placeholder="Найти пользователя" name="search">
-            <button type="submit" class="btn btn-secondary">Найти пользователей</button>
+
+            <div class="d-flex flew-wrap px-2 col-12 col-sm-8 col-md-7 col-lg-6 justify-content-around mx-auto">
+                <input type="input" class="form-control border-3 rounded-0 mx-2" placeholder="Найти пользователя" name="search">
+                <button type="submit" class="btn btn-secondary">Найти пользователей</button>
+            </div>
             <br/><br/>
         </form>
-
-        {% if search %}
-            <h3>Вы ищите: {{ search }}</h3>
-            <br/>
-        {% endif %}
-
-        {% if searched %}
-            {% for result in searched %}
-                <a href="{% url 'user_page:user-page' result.username %}">{{ result.username }}</a>
-                {% if user.photo %}
-                    <img src="{{ result.photo.url }}">
-                {% endif %}
+            {% if search %}
+                <h3 class="text-center card-text">Вы ищите: {{ search }}</h3>
                 <br/>
-                <a href="{% url 'message:dialog' request.user.username %}">Начать диалог</a>
-            {% endfor %}
-        {% else %}
-        {% if searched == None %}
+            {% else %}
+                <h3 class="text-center card-text">Все пользователи</h3>
+                <br/>
+            {% endif %}
 
-        {% else %}
-            <h5>Ничего не найдено</h5>
-        {% endif %}
-        {% endif %}
-
+            {% if searched %}
+                <ul class="d-flex col-9 col-sm-6 col-md-5 col-lg-4 flex-column list-group mx-auto">
+                {% for result in searched %}
+                    <li class="list-group-item">
+                        {% if result.photo %}
+                            <img src="{{ result.photo.url }}" class="avatar rounded-circle border border-dark">
+                        {% endif %}
+                        <a href="{% url 'user_page:user-page' result.user.username %}" class="text-decoration-none text-dark">{{ result.user.username }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                {% if searched != None %}
+                    <h5>Ничего не найдено</h5>
+                {% endif %}
+            {% endif %}
 {% endblock %}
