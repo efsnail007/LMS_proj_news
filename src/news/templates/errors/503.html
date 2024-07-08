@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+503 - Сервис временно недоступен
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">503 - Сервис временно недоступен</h1>
+        <p class="lead">Извините, сервис временно недоступен. Пожалуйста, попробуйте позже.</p>
+        <hr class="my-4">
+        <p>Вы можете вернуться на <a href="{% url 'registration:main' %}">главную страницу</a> и проверить другие разделы сайта.</p>
+    </div>
+</div>
+{% endblock %}

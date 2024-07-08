@@ -10,3 +10,8 @@ urlpatterns = [
     path('<int:item_id>/delete/', views.ItemDeleteView.as_view(), name='delete_item'),
     path('<int:item_id>/feedback/', views.FeedbackView.as_view(), name='feedback'),
 ]
+
+handler404 = item_views.handler404
+handler500 = item_views.handler500
+handler503 = item_views.handler503
+handler403 = item_views.handler403
