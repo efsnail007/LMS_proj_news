@@ -28,7 +28,12 @@ urlpatterns = [
     path('item/', include('item.urls')),
     path('', include('news_feed.urls')),
     path('search_user/', include('message.urls')),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'item.views.handler404'
+handler500 = 'item.views.handler500'
+handler503 = 'item.views.handler503'
+handler403 = 'item.views.handler403'
