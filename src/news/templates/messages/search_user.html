@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+        <h1>Поиск пользователей</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="input" class="form-control" placeholder="Найти пользователя" name="search">
+            <button type="submit" class="btn btn-secondary">Найти пользователей</button>
+            <br/><br/>
+        </form>
+
+        {% if search %}
+            <h3>Вы ищите: {{ search }}</h3>
+            <br/>
+        {% endif %}
+
+        {% if searched %}
+            {% for result in searched %}
+                <a href="{% url 'user_page:user-page' result.username %}">{{ result.username }}</a>
+                {% if user.photo %}
+                    <img src="{{ result.photo.url }}">
+                {% endif %}
+                <br/>
+                <a href="{% url 'message:dialog' request.user.username %}">Начать диалог</a>
+            {% endfor %}
+        {% else %}
+        {% if searched == None %}
+
+        {% else %}
+            <h5>Ничего не найдено</h5>
+        {% endif %}
+        {% endif %}
+
+{% endblock %}
