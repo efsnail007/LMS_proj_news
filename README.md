@@ -26,7 +26,7 @@ EMAIL_HOST_PASSWORD=<пароль>
 docker-compose build
 ```
 
-Затем необходимо написать:
+Затем необходимо запустить контейнер:
 ```
 docker-compose up
 ```
