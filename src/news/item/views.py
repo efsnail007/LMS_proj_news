@@ -92,7 +92,11 @@ class ItemDetailView(View):
                 text = form.data['comment_text']
                 MarkedRecords.objects.create(item=Item.objects.get(id=self.kwargs['item_id']), user=profile,
                                              mark='Comment', text=text)
-                return JsonResponse({'text': text, 'username': request.user.username, 'photo': profile.photo.url})
+
+                photo = False
+                if profile.photo:
+                    photo = profile.photo.url
+                return JsonResponse({'text': text, 'username': request.user.username, 'photo': photo})
 
         return redirect('item:item_detail', item_id=self.kwargs['item_id'])
 
