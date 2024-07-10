@@ -193,7 +193,7 @@ class UserLikeList(View):
 def follows_list(request, username):
     if not request.user.is_authenticated:
         return redirect('registration:auth')
-    record_subscription = Subscriptions.objects.get(subscriber_id=request.user.id)
+    record_subscription = Subscriptions.objects.get(subscriber_id=User.objects.get(username=username).id)
     all_records = list(record_subscription.subscription_profiles.all())
     if len(all_records) > 0:
         return render(request, 'user_page/follow_list.html', {'follows': all_records, 'username': username})
